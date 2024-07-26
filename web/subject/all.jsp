@@ -129,15 +129,16 @@
                                                 </tr>
                                                 <!-- START MODAL -->
                                                 <!-- Update Details Modal -->
-                                            <form action="/subject/update" method="post">
-                                                <div class="modal fade" id="updateSubjectProfile${s.subject.id}" tabindex="-1" aria-labelledby="updateSubjectProfileLabel${s.subject.id}" aria-hidden="true">
-                                                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header border-bottom p-3">
-                                                                <h5 class="modal-title" id="updateSubjectProfileLabel${s.subject.id}">${s.subject.name}</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body p-3 pt-4">
+
+                                            <div class="modal fade" id="updateSubjectProfile${s.subject.id}" tabindex="-1" aria-labelledby="updateSubjectProfileLabel${s.subject.id}" aria-hidden="true">
+                                                <div class="modal-dialog modal-xl modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header border-bottom p-3">
+                                                            <h5 class="modal-title" id="updateSubjectProfileLabel${s.subject.id}">${s.subject.name}</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body p-3 pt-4">
+                                                            <form action="/subject/update" method="post">
                                                                 <div class="row">
                                                                     <div class="col-md-6">
                                                                         <div class="mb-3">
@@ -192,11 +193,12 @@
                                                                         </div><!--end col-->
                                                                     </div><!--end row-->
                                                                 </div>
-                                                            </div>
+                                                            </form>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </form>
+                                            </div>
+
 
                                             <!-- Status Change Confirmation Modal -->
                                             <div class="modal fade" id="toggleStatus${s.subject.id}" tabindex="-1" aria-labelledby="toggleStatusLabel${s.subject.id}" aria-hidden="true">
@@ -221,44 +223,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                                                
-                                            <!-- Modal for Managers -->
-                                            <div class="modal fade" id="managerList${s.subject.id}" tabindex="-1" aria-labelledby="managerListLabel${s.subject.id}" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-centered">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="managerListLabel${s.subject.id}">Managers for ${s.subject.name}</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <table class="table table-striped">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th scope="col">Full Name</th>
-                                                                        <th scope="col">Phone</th>
-                                                                        <th scope="col">Email</th>
-                                                                        <th scope="col">Date Of Birth</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    <c:forEach var="manager" items="${s.managers}">
-                                                                        <tr>
-                                                                            <td>${manager.fullName}</td>
-                                                                            <td>${manager.phoneNumber}</td>
-                                                                            <td>${manager.email}</td>
-                                                                            <td>${manager.dob}</td>
-                                                                        </tr>
-                                                                    </c:forEach>
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
                                         </c:forEach>
                                         </tbody>
                                     </table>
@@ -291,6 +255,45 @@
                 <jsp:include page="../footer/footer.jsp"/>
             </main>
         </div>
+
+        <c:forEach var="s" items="${subjects}">
+            <!-- Modal for Managers -->
+            <div class="modal fade" id="managerList${s.subject.id}" tabindex="-1" aria-labelledby="managerListLabel${s.subject.id}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="managerListLabel${s.subject.id}">Managers for ${s.subject.name}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Full Name</th>
+                                        <th>Email</th>
+                                        <th>Phone Number</th>
+                                        <th>Date of Birth</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="manager" items="${s.managers}">
+                                        <tr>
+                                            <td>${manager.fullName}</td>
+                                            <td>${manager.email}</td>
+                                            <td>${manager.phoneNumber}</td>
+                                            <td>${manager.dob}</td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </c:forEach>
 
         <!-- Toast notifications -->
         <c:if test="${added == 'successful'}">
