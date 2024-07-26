@@ -63,6 +63,10 @@ public final class UserQueryConstant {
      public static final String FIND_MANAGER_BY_ID = "SELECT u.* FROM user u " +
                                                     "INNER JOIN subject_manager sm ON u.id = sm.user_id " +
                                                     "WHERE sm.subject_id = ?";
+     
+      public static final String FIND_STUDENT_BY_ID = "SELECT u.* FROM user u " +
+                                                    "INNER JOIN student_class sc ON u.id = sc.user_id " +
+                                                    "WHERE sc.class_id = ?";
     
     private UserQueryConstant() {
         throw new AssertionError("This class is used for storing constants only!");

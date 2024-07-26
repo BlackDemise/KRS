@@ -131,6 +131,9 @@
                                                         <i class="uil uil-direction"></i>
                                                     </a>
                                                 </th>
+                                                <th class="border-bottom p-3">
+                                                    Student
+                                                </th>
                                                 <th class="border-bottom p-3" style="min-width: 20%;">Action</th>
                                             </tr>
                                         </thead>
@@ -139,32 +142,37 @@
                                             <c:forEach var="c" items="${classes}" varStatus="status">
                                                 <tr>
                                                     <td class="p-3"><c:out value="${(currentPage - 1) * itemsPerPage + status.index + 1}" /></td>
-                                                    <td class="p-3">${c.title}</td>
-                                                    <td class="p-3">${c.teacher.fullName}</td>
-                                                    <td class="p-3">${c.subject.code}</td>
-                                                    <td class="p-3">${c.status}</td>
+                                                    <td class="p-3">${c.classRoom.title}</td>
+                                                    <td class="p-3">${c.classRoom.teacher.fullName}</td>
+                                                    <td class="p-3">${c.classRoom.subject.code}</td>
+                                                    <td class="p-3">${c.classRoom.status}</td>
+                                                    <td class="p-3">
+                                                        <button type="button" class="btn btn-icon btn-pills btn-soft-primary" data-bs-toggle="modal" data-bs-target="#studentsList${c.classRoom.id}">
+                                                            <i class="uil uil-eye"></i>
+                                                        </button>
+                                                    </td>
                                                     <td class="text-start p-3">
-                                                        <a href="${pageContext.request.contextPath}/class/update?classId=${c.id}" class="btn btn-icon btn-pills btn-soft-success"><i class="uil uil-edit"></i></a>
-                                                        <a href="#" class="btn btn-icon btn-pills btn-soft-danger" data-bs-toggle="modal" data-bs-target="#toggleClassStatus${c.id}">
-                                                            ${c.status.equals('INACTIVE') ? '<i class="uil uil-unlock"></i>' : '<i class="uil uil-lock"></i>'}
+                                                        <a href="${pageContext.request.contextPath}/class/update?classId=${c.classRoom.id}" class="btn btn-icon btn-pills btn-soft-success"><i class="uil uil-edit"></i></a>
+                                                        <a href="#" class="btn btn-icon btn-pills btn-soft-danger" data-bs-toggle="modal" data-bs-target="#toggleClassStatus${c.classRoom.id}">
+                                                            ${c.classRoom.status.equals('INACTIVE') ? '<i class="uil uil-unlock"></i>' : '<i class="uil uil-lock"></i>'}
                                                         </a>
                                                     </td>
                                                 </tr>
 
                                                 <!-- Toggle Status Modal -->
-                                            <div class="modal fade" id="toggleClassStatus${c.id}" tabindex="-1" aria-labelledby="toggleClassStatusLabel${c.id}" aria-hidden="true">
+                                            <div class="modal fade" id="toggleClassStatus${c.classRoom.id}" tabindex="-1" aria-labelledby="toggleClassStatusLabel${c.classRoom.id}" aria-hidden="true">
                                                 <div class="modal-dialog modal-dialog-centered">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="toggleClassStatusLabel${c.id}">Confirmation</h5>
+                                                            <h5 class="modal-title" id="toggleClassStatusLabel${c.classRoom.id}">Confirmation</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body text-danger-emphasis">
-                                                            Do you want to ${'ACTIVE'.equals(c.status) ? 'deactivate' : 'activate'} this class?
+                                                            Do you want to ${'ACTIVE'.equals(c.classRoom.status) ? 'deactivate' : 'activate'} this class?
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button class="btn btn-primary" data-bs-dismiss="modal">No</button>
-                                                            <button class="btn btn-warning" onclick="confirmToggleClassStatus(${c.id}, '${c.status}')" data-bs-dismiss="modal">Yes</button>
+                                                            <button class="btn btn-warning" onclick="confirmToggleClassStatus(${c.classRoom.id}, '${c.classRoom.status}')" data-bs-dismiss="modal">Yes</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -172,11 +180,11 @@
                                             <!-- End Toggle Status Modal -->
 
                                             <!-- Details Modal -->
-                                            <div class="modal fade" id="classProfile${c.id}" tabindex="-1" aria-labelledby="classProfileLabel${c.id}" aria-hidden="true">
+                                            <div class="modal fade" id="classProfile${c.classRoom.id}" tabindex="-1" aria-labelledby="classProfileLabel${c.classRoom.id}" aria-hidden="true">
                                                 <div class="modal-dialog modal-xl modal-dialog-centered">
                                                     <div class="modal-content">
                                                         <div class="modal-header border-bottom p-3">
-                                                            <h5 class="modal-title" id="classProfileLabel${c.id}">${c.title}</h5>
+                                                            <h5 class="modal-title" id="classProfileLabel${c.classRoom.id}">${c.classRoom.title}</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body p-3 pt-4">
@@ -188,7 +196,7 @@
                                                                 <div class="col-lg-10 col-md-8">
                                                                     <div class="mb-3">
                                                                         <label class="form-label">Class Name</label>
-                                                                        <input type="text" class="form-control" value="${c.title}" disabled>
+                                                                        <input type="text" class="form-control" value="${c.classRoom.title}" disabled>
                                                                     </div>
                                                                 </div><!--end col-->
                                                             </div><!--end row-->
@@ -197,14 +205,14 @@
                                                                 <div class="col-md-12">
                                                                     <div class="mb-3">
                                                                         <label class="form-label">Teacher Name</label>
-                                                                        <input type="text" class="form-control" value="${c.teacher.fullName}" disabled>
+                                                                        <input type="text" class="form-control" value="${c.classRoom.teacher.fullName}" disabled>
                                                                     </div> 
                                                                 </div><!--end col-->
 
                                                                 <div class="col-md-12">
                                                                     <div class="mb-3">
                                                                         <label class="form-label">Subject Code</label>
-                                                                        <input type="text" class="form-control" value="${c.subject.code}" disabled>
+                                                                        <input type="text" class="form-control" value="${c.classRoom.subject.code}" disabled>
                                                                     </div> 
                                                                 </div><!--end col-->
                                                             </div>
@@ -251,6 +259,58 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Modal for Students -->
+                        <c:forEach var="c" items="${classes}">
+                            <div class="modal fade" id="studentsList${c.classRoom.id}" tabindex="-1" aria-labelledby="studentsListLabel${c.classRoom.id}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="studentsListLabel${c.classRoom.id}">Students for ${c.classRoom.title}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <!-- File Upload Form -->
+                                            <form action="${pageContext.request.contextPath}/class/uploadStudents" method="post" enctype="multipart/form-data">
+                                                <input type="hidden" name="classId" value="${c.classRoom.id}">
+                                                <div class="form-group">
+                                                    <label for="fileUpload${c.classRoom.id}">Upload Students File</label>
+                                                    <input type="file" id="fileUpload${c.classRoom.id}" name="studentsFile" class="form-control" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary mt-3">Upload</button>
+                                            </form>
+                                            <hr>
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Full Name</th>
+                                                        <th>Email</th>
+                                                        <th>Phone Number</th>
+                                                        <th>Date of Birth</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <c:forEach var="student" items="${c.students}">
+                                                        <tr>
+                                                            <td>${student.fullName}</td>
+                                                            <td>${student.email}</td>
+                                                            <td>${student.phoneNumber}</td>
+                                                            <td>${student.dob}</td>
+                                                        </tr>
+                                                    </c:forEach>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </c:forEach>
+
+
+
 
                         <!-- Success Toast Message -->
                         <c:choose>

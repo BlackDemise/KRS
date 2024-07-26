@@ -390,10 +390,6 @@ public class ClassRepositoryImpl implements ClassRepository {
     }
 
     public void addStudentToClass(User student, Classroom classroom) {
-        // Save the student to the database if it doesn't exist
-        if (userRepository.findByEmail(student.getEmail()) == null) {
-            userRepository.save(student);
-        }
 
         String sql = "INSERT INTO student_class (user_id, class_id) VALUES (?, ?)";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {

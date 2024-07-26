@@ -95,7 +95,7 @@
                                     </ul>
                                 </div>
                             </li>
-                            
+
                             <li><a href="/exam-history"><i class="uil uil-dashboard me-2 d-inline-block"></i>Exam History</a></li>
                         </ul>
                     </c:when>
@@ -168,7 +168,7 @@
                                     </ul>
                                 </div>
                             </li>
-                            
+
                             <li><a href="/exam-history"><i class="uil uil-dashboard me-2 d-inline-block"></i>Exam History</a></li>
                         </ul>
                     </c:when>
@@ -228,7 +228,17 @@
                                     </ul>
                                 </div>
                             </li>
-                            
+
+                            <li class="sidebar-dropdown">
+                                <a href="javascript:void(0)"><i class="uil uil-flip-h me-2 d-inline-block"></i>Flashcard</a>
+                                <div class="sidebar-submenu">
+                                    <ul>
+                                        <li><a href="/flashcard/all-flashcard">All Flashcard</a></li>
+                                        <li><a href="/flashcard/my-flashcard">My Flashcard</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+
                             <li><a href="/exam-history"><i class="uil uil-dashboard me-2 d-inline-block"></i>Exam History</a></li>
                         </ul>
                     </c:when>
@@ -259,6 +269,16 @@
 
                             <li>
                                 <a href="/my-classes"><i class="uil uil-user me-2 d-inline-block"></i>My Classes</a>
+                            </li>
+
+                            <li class="sidebar-dropdown">
+                                <a href="javascript:void(0)"><i class="uil uil-flip-h me-2 d-inline-block"></i>Flashcard</a>
+                                <div class="sidebar-submenu">
+                                    <ul>
+                                        <li><a href="/flashcard/all-flashcard">All Flashcard</a></li>
+                                        <li><a href="/flashcard/my-flashcard">My Flashcard</a></li>
+                                    </ul>
+                                </div>
                             </li>
 
                             <li><a href="/exam-history"><i class="uil uil-dashboard me-2 d-inline-block"></i>Exam History</a></li>

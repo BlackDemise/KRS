@@ -49,7 +49,9 @@ public class SessionFilter implements Filter {
                             && !requestURI.contains("/user/add") && !requestURI.contains("/user/update")
                             && !requestURI.contains("/user/toggle") && !requestURI.contains("/subject/add")
                             && !requestURI.contains("/subject/update") && !requestURI.contains("/subject/updateStatus")
-                            && !requestURI.contains("/class/add") && !requestURI.contains("/class/update");
+                            && !requestURI.contains("/class/add") && !requestURI.contains("/class/update")
+                            || requestURI.contains("/flashcard/all-flashcard") || requestURI.contains("/flashcard/my-flashcard")
+                            || requestURI.contains("/flashcard/add-flashcard");
                 }
                 case ROLE_STUDENT -> {
                     isAuthenticated = requestURI.contains("/my-classes") || requestURI.endsWith("/dashboard")
@@ -57,7 +59,9 @@ public class SessionFilter implements Filter {
                             && !requestURI.contains("/user/add") && !requestURI.contains("/user/update")
                             && !requestURI.contains("/user/toggle") && !requestURI.contains("/subject/add")
                             && !requestURI.contains("/subject/update") && !requestURI.contains("/subject/updateStatus")
-                            && !requestURI.contains("/class/add") && !requestURI.contains("/class/update");
+                            && !requestURI.contains("/class/add") && !requestURI.contains("/class/update")
+                            || requestURI.contains("/flashcard/all-flashcard") || requestURI.contains("/flashcard/my-flashcard")
+                            || requestURI.contains("/flashcard/add-flashcard");
                 }
                 default -> {
                     isAuthenticated = false;

@@ -56,5 +56,9 @@ public class SubjectServiceImpl implements SubjectService {
     public void removeSubjectManagers(Long subjectId) {
         subjectRepository.removeSubjectManagers(subjectId);
     }
+    
+    public List<Subject> findAll(){
+        return subjectRepository.findAll();
+    }
 
 }

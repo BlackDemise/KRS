@@ -171,18 +171,6 @@
                                                                         </div>
                                                                     </div><!--end col-->
 
-                                                                    <div class="col-md-12">
-                                                                        <div class="mb-3">
-                                                                            <label class="form-label">Managers</label>
-                                                                            <select name="managerIds" id="managerIds" class="form-control select2" multiple="multiple" required>
-
-
-                                                                                <!-- Su ly o day -->
-
-
-                                                                            </select>
-                                                                        </div>
-                                                                    </div><!--end col-->
 
                                                                     <div class="row">
                                                                         <div class="col-sm-12">

@@ -158,4 +158,8 @@ public class UserServiceImpl implements UserService {
     public List<User> findManagerById(Long subjectId) {
         return userRepository.findManagerById(subjectId);
     }
+    
+    public List<User> findStudentById(Long studentId) {
+        return userRepository.findStudentById(studentId);
+    }
 }

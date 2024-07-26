@@ -286,4 +286,19 @@ public class UserRepositoryImpl implements UserRepository {
         }
         return Collections.emptyList();
     }
+
+    public List<User> findStudentById(Long studentId) {
+        List<User> lisStudents = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(UserQueryConstant.FIND_STUDENT_BY_ID)) {
+            ps.setLong(1, studentId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                lisStudents.add(userMapper(rs));
+            }
+            return lisStudents;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
 }

@@ -50,8 +50,9 @@
         }
 
         .form-row {
-            display: flex;
-            gap: 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 20px;
         }
 
         .form-row .form-group {
@@ -164,19 +165,15 @@
                                     </div>
                                 </c:if>
                                 <form class="mt-4" action="${pageContext.request.contextPath}/class/add" method="post" enctype="multipart/form-data">
-                                    <div class="form-group">
-                                        <label for="file">Upload Excel File:</label>
-                                        <input type="file" name="file" id="file" class="form-control">
-                                    </div>
-                                    <div class="row form-row">
-                                        <div class="col-md-6 form-group">
+                                    <div class="form-row">
+                                        <div class="form-group">
                                             <label for="className">Class Name*</label>
                                             <input type="text" id="className" name="className" placeholder="Enter class name" class="form-control" value="${className != null ? className : ''}">
                                             <c:if test="${not empty classNameError}">
                                                 <div style="color: red;">${classNameError}</div>
                                             </c:if>
                                         </div>
-                                        <div class="col-md-6 form-group">
+                                        <div class="form-group">
                                             <label for="code">Code*</label>
                                             <select id="code" name="code" class="form-control">
                                                 <option value="">Select code</option>
@@ -188,7 +185,7 @@
                                                 <div style="color: red;">${codeError}</div>
                                             </c:if>
                                         </div>
-                                        <div class="col-md-6 form-group">
+                                        <div class="form-group">
                                             <label for="teacher">Teacher*</label>
                                             <select id="teacher" name="teacher" class="form-control">
                                                 <option value="">Select teacher</option>
@@ -200,15 +197,15 @@
                                                 <div style="color: red;">${teacherError}</div>
                                             </c:if>
                                         </div>
-                                        <div class="col-md-6 form-group">
+                                        <div class="form-group">
                                             <label>Status*</label>
                                             <div class="status-group">
                                                 <div>
-                                                    <input type="radio" id="active" name="status" value="ACTIVE" ${status == 'ACTIVE' ? 'checked' : ''}>
+                                                    <input type="radio" id="active" name="status" value="Active" ${status == 'Active' ? 'checked' : ''}>
                                                     <label for="active">Active</label>
                                                 </div>
                                                 <div>
-                                                    <input type="radio" id="inactive" name="status" value="INACTIVE" ${status == 'INACTIVE' ? 'checked' : ''}>
+                                                    <input type="radio" id="inactive" name="status" value="Inactive" ${status == 'Inactive' ? 'checked' : ''}>
                                                     <label for="inactive">Inactive</label>
                                                 </div>
                                             </div>

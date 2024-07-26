@@ -1,5 +1,7 @@
 package controller.classroom;
 
+import constant.EUserStatus;
+import dto.ClassroomDto;
 import entity.Classroom;
 import entity.Subject;
 import entity.User;
@@ -21,10 +23,14 @@ import util.ClassValidation;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.poi.ss.usermodel.Cell;
+import static org.apache.poi.ss.usermodel.CellType.STRING;
 
-@WebServlet(name = "ClassServlet", urlPatterns = {"/class", "/class/add", "/class/toggle", "/class/update", "/class/import"})
+@WebServlet(name = "ClassServlet", urlPatterns = {"/class", "/class/add", "/class/toggle", "/class/update", "/class/uploadStudents"})
 @MultipartConfig
 public class ClassServlet extends HttpServlet {
 
@@ -37,12 +43,15 @@ public class ClassServlet extends HttpServlet {
             throws ServletException, IOException {
         final String ACTION = request.getServletPath();
         switch (ACTION) {
-            case "/class" ->
+            case "/class":
                 handleAllClasses(request, response);
-            case "/class/add" ->
+                break;
+            case "/class/add":
                 handleAddGet(request, response);
-            case "/class/update" ->
+                break;
+            case "/class/update":
                 handleUpdateGet(request, response);
+                break;
         }
     }
 
@@ -51,12 +60,18 @@ public class ClassServlet extends HttpServlet {
             throws ServletException, IOException {
         final String ACTION = request.getServletPath();
         switch (ACTION) {
-            case "/class/add" ->
+            case "/class/add":
                 handleAddPost(request, response);
-            case "/class/update" ->
+                break;
+            case "/class/update":
                 handleUpdatePost(request, response);
-            case "/class/toggle" ->
+                break;
+            case "/class/toggle":
                 handleTogglePost(request, response);
+                break;
+            case "/class/uploadStudents":
+                handleUploadStudents(request, response);
+                break;
         }
     }
 
@@ -89,7 +104,12 @@ public class ClassServlet extends HttpServlet {
 
         int totalPages = (int) Math.ceil((double) totalClasses / itemsPerPage);
 
-        request.setAttribute("classes", classes);
+        List<ClassroomDto> listStudents = new ArrayList<>();
+        for (Classroom u : classes) {
+            listStudents.add(new ClassroomDto(u, userRepository.findStudentById(u.getId())));
+        }
+
+        request.setAttribute("classes", listStudents);
         request.setAttribute("currentPage", currentPage);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("itemsPerPage", itemsPerPage);
@@ -115,7 +135,6 @@ public class ClassServlet extends HttpServlet {
         String codeStr = request.getParameter("code");
         String teacherIdStr = request.getParameter("teacher");
         String status = request.getParameter("status");
-        Part filePart = request.getPart("file");
 
         request.setAttribute("className", className);
         request.setAttribute("codeStr", codeStr);
@@ -159,10 +178,6 @@ public class ClassServlet extends HttpServlet {
                 classroom.setStatus(status);
 
                 classRepository.save(classroom);
-
-                if (filePart != null && filePart.getSize() > 0) {
-                    importStudentsFromExcel(filePart, classroom);
-                }
 
                 response.sendRedirect(request.getContextPath() + "/class?added=successful");
                 return;
@@ -241,6 +256,37 @@ public class ClassServlet extends HttpServlet {
         }
     }
 
+    private void handleUploadStudents(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String classIdStr = request.getParameter("classId");
+        if (classIdStr == null || classIdStr.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Class ID is required");
+            return;
+        }
+
+        Long classId;
+        try {
+            classId = Long.parseLong(classIdStr);
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid Class ID");
+            return;
+        }
+
+        Part filePart = request.getPart("studentsFile");
+        if (filePart == null || filePart.getSize() == 0) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "File is required");
+            return;
+        }
+
+        Classroom classroom = classRepository.findById(classId);
+        if (classroom == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Class not found");
+            return;
+        }
+
+        importStudentsFromExcel(filePart, classroom);
+        response.sendRedirect(request.getContextPath() + "/class?uploaded=successful");
+    }
+
     private void importStudentsFromExcel(Part filePart, Classroom classroom) {
         try (InputStream inputStream = filePart.getInputStream(); Workbook workbook = new XSSFWorkbook(inputStream)) {
 
@@ -254,17 +300,17 @@ public class ClassServlet extends HttpServlet {
 
                 String studentName = row.getCell(0).getStringCellValue();
                 String studentEmail = row.getCell(1).getStringCellValue();
-                // Add other fields as necessary
+                String studentPhoneNumber = getCellAsString(row.getCell(2));
+                LocalDate studentDob = getCellAsDate(row.getCell(3)); // Assuming date is in LocalDate format
 
-                // Khởi tạo đối tượng User với dữ liệu từ tệp Excel
-                User student = new User(studentName, studentEmail, "default_password");
-                // Set other fields as necessary
-
+                // Create User object with data from the Excel file
+                User student = userRepository.findByEmail(studentEmail);
                 students.add(student);
             }
 
             for (User student : students) {
-                // Thêm sinh viên vào lớp
+                // Add student to class
+//                userRepository.save(student);
                 classRepository.addStudentToClass(student, classroom);
             }
         } catch (Exception e) {
@@ -272,4 +318,32 @@ public class ClassServlet extends HttpServlet {
         }
     }
 
+    private String getCellAsString(Cell cell) {
+        return switch (cell.getCellType()) {
+            case Cell.CELL_TYPE_STRING ->
+                cell.getStringCellValue();
+            case Cell.CELL_TYPE_NUMERIC ->
+                String.format("%.0f", cell.getNumericCellValue());
+            case Cell.CELL_TYPE_BOOLEAN ->
+                Boolean.toString(cell.getBooleanCellValue());
+            case Cell.CELL_TYPE_FORMULA ->
+                cell.getCellFormula();
+            case Cell.CELL_TYPE_BLANK ->
+                "";
+            default ->
+                cell.toString();
+        };// For numeric values, convert to String and ensure leading zeros are preserved
+    }
+
+    private LocalDate getCellAsDate(Cell cell) {
+        if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+            // Assuming the date is in yyyy-MM-dd format
+            return LocalDate.parse(cell.getStringCellValue(), DateTimeFormatter.ISO_LOCAL_DATE);
+        } else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+            // Convert Excel numeric date to LocalDate
+            return cell.getDateCellValue().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        } else {
+            throw new IllegalArgumentException("Invalid date format");
+        }
+    }
 }
