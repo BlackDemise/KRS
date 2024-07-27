@@ -63,6 +63,10 @@
             .form-group.flex-item:last-child {
                 margin-right: 0;
             }
+            
+            label {
+                font-weight: bold;
+            }
         </style>
     </head>
 
@@ -104,8 +108,8 @@
                             
                             <div class="form-group flex-item">
                                 <label for="flashcardSubject">Status</label>
-                                <input type="radio" name="status" value="Show">Show
-                                <input type="radio" name="status" value="Hidden">Hidden
+                                <input type="radio" name="status" value="SHOW">Show
+                                <input type="radio" name="status" value="HIDDEN">Hidden
                             </div>
                             <div id="flashcards" class="mt-4">
                                 <!-- Initial Flashcard -->

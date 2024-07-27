@@ -3,12 +3,15 @@ package repository.impl;
 import constant.FlashcardQuery;
 import constant.ISubjectQuery;
 import entity.Flashcard;
+import entity.FlashcardAccess;
 import entity.FlashcardSet;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import mysql.DatabaseConnection;
 import repository.FlashcardRepository;
 
@@ -109,5 +112,27 @@ public class FlashcardRepositoryImpl implements FlashcardRepository {
         }
 
         return check > 0 ? fls.getId() : -1;
+    }
+    
+    public boolean saveFlashcardAccess(FlashcardAccess flashcardAccess) throws SQLException {
+        Connection con = null;
+        int rowAffected = -1;
+        try (Connection c = DatabaseConnection.getConnection(); 
+                PreparedStatement ps = c.prepareStatement(FlashcardQuery.ADD_FLASHCARD_ACCESS)) {
+            con = c;
+            c.setAutoCommit(false);
+            ps.setLong(1, flashcardAccess.getFlashcard().getId());
+            ps.setLong(2, flashcardAccess.getUser().getId());
+            ps.setDate(3, java.sql.Date.valueOf(flashcardAccess.getAccessTime()));
+            
+            rowAffected = ps.executeUpdate();
+            c.commit();
+        } catch (SQLException ex) {
+            if (con != null) {
+                con.rollback();
+            }
+            Logger.getLogger(FlashcardRepositoryImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return rowAffected > 0;
     }
 }

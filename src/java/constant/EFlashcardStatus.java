@@ -10,8 +10,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum EFlashcardStatus {
-    ACTIVE("Active"),
-    INACTIVE("Inactive");
+    SHOW("Show"),
+    HIDDEN("Hidden");
 
     private final String flashcardStatus;
 }

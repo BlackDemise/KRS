@@ -40,7 +40,14 @@
                 <jsp:include page="../navbar/horizontal.jsp"/>
                 <div class="container-fluid">
                     <div class="layout-specing">
-                        <a href="/flashcard/add-flashcard" >Add Flashcard </a>
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">Flashcard Name</h5>
+                                <h6 class="card-subtitle mb-2 text-body-secondary">Total Sets Of This Flashcard</h6>
+                                <p class="card-text">Creator - Creator's Role</p>
+                                <a href="#" class="card-link">Learn</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <jsp:include page="../footer/footer.jsp"/>
