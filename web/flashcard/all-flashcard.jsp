@@ -40,14 +40,31 @@
                 <jsp:include page="../navbar/horizontal.jsp"/>
                 <div class="container-fluid">
                     <div class="layout-specing">
-                        <div class="card" style="width: 18rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">Flashcard Name</h5>
-                                <h6 class="card-subtitle mb-2 text-body-secondary">Total Sets Of This Flashcard</h6>
-                                <p class="card-text">Creator - Creator's Role</p>
-                                <a href="#" class="card-link">Learn</a>
+                        <!-- Search bar added here -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <form class="d-flex" role="search" action="/flashcard/all-flashcard">
+                                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="flTitle">
+                                    <button class="btn btn-outline-success" type="submit">Search</button>
+                                </form>
                             </div>
                         </div>
+                        <div class="row">
+                            <c:forEach var="fl" items="${listFlashcard}" varStatus="status">
+                                <div class="col-4">
+                                    <div class="card" style="width: 18rem;">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${fl.name}</h5>
+                                            <h6 class="card-subtitle mb-2 text-body-secondary">${totalCards[status.index]}</h6>
+                                            <p class="card-text">${creators[status.index].fullName} - ${creators[status.index].role.title.userRole}</p>
+                                            <a href="${pageContext.request.contextPath}/flashcard/flashcard-details?flId=${fl.id}" class="card-link">Learn</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </div>
+                        <!-- Flashcard content -->
+                       
                     </div>
                 </div>
                 <jsp:include page="../footer/footer.jsp"/>

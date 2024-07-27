@@ -5,9 +5,12 @@
 package service.impl;
 
 import entity.Flashcard;
+import entity.FlashcardAccess;
 import entity.FlashcardSet;
 import jakarta.servlet.http.HttpServletRequest;
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import repository.impl.FlashcardRepositoryImpl;
 import service.FlashcardService;
@@ -86,4 +89,39 @@ public class FlashcardServiceImpl implements FlashcardService {
         return flashcardRepository.saveFlashcardSet(fls);
     }
 
+    public List<Flashcard> findTop3Recent(Long UserId, int totalCard) {
+        return flashcardRepository.findTop3Recent(UserId, totalCard);
+    }
+
+    public int countFlashcardSet(Long flashcardId) {
+        return flashcardRepository.countFlashcardSet(flashcardId);
+    }
+
+    public List<FlashcardSet> findFlashcardSet(Long flashcardId) {
+        return flashcardRepository.findFlashcardSet(flashcardId);
+    }
+
+    public List<Flashcard> findAll() {
+        return flashcardRepository.findAll();
+    }
+
+    public List<Flashcard> findByName(String name) {
+        return flashcardRepository.findByName(name);
+    }
+
+    public Flashcard findById(Long flashcardId) {
+        return flashcardRepository.findById(flashcardId);
+    }
+
+    public boolean saveFlashcardAccess(FlashcardAccess flashcard) throws SQLException {
+        return flashcardRepository.saveFlashcardAccess(flashcard);
+    }
+
+    public List<Flashcard> findByCreator(Long creatorId) {
+        return flashcardRepository.findByCreator(creatorId);
+    }
+    
+    public void deleteFlashcardSet(Long id){
+        flashcardRepository.deleteFlashcardSet(id);
+    }
 }

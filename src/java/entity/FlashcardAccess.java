@@ -1,6 +1,6 @@
 package entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,5 +16,5 @@ public class FlashcardAccess {
     private Long id;
     private Flashcard flashcard;
     private User user;
-    private LocalDate accessTime;
+    private LocalDateTime accessTime;
 }

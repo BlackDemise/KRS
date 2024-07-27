@@ -1,5 +1,6 @@
 package repository.impl;
 
+import constant.EFlashcardStatus;
 import constant.FlashcardQuery;
 import constant.ISubjectQuery;
 import entity.Flashcard;
@@ -10,14 +11,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import mysql.DatabaseConnection;
 import repository.FlashcardRepository;
+import service.impl.SubjectServiceImpl;
 
 public class FlashcardRepositoryImpl implements FlashcardRepository {
 
     private static final FlashcardRepositoryImpl instance = new FlashcardRepositoryImpl();
+
+    private final SubjectServiceImpl subjectService = SubjectServiceImpl.getInstance();
 
     private FlashcardRepositoryImpl() {
     }
@@ -31,7 +38,7 @@ public class FlashcardRepositoryImpl implements FlashcardRepository {
         int check = 0;
         Connection con = null;
 
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(isAddAction ? FlashcardQuery.ADD : ISubjectQuery.UPDATE, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(isAddAction ? FlashcardQuery.ADD : FlashcardQuery.UPDATE, java.sql.Statement.RETURN_GENERATED_KEYS)) {
             con = c;
             c.setAutoCommit(false);
 
@@ -75,7 +82,7 @@ public class FlashcardRepositoryImpl implements FlashcardRepository {
         int check = 0;
         Connection con = null;
 
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(isAddAction ? FlashcardQuery.ADD_FLASHCARD_SET : ISubjectQuery.UPDATE, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(isAddAction ? FlashcardQuery.ADD_FLASHCARD_SET : FlashcardQuery.UPDATE_FLASHCARD_SET, java.sql.Statement.RETURN_GENERATED_KEYS)) {
             con = c;
             c.setAutoCommit(false);
 
@@ -113,18 +120,17 @@ public class FlashcardRepositoryImpl implements FlashcardRepository {
 
         return check > 0 ? fls.getId() : -1;
     }
-    
+
     public boolean saveFlashcardAccess(FlashcardAccess flashcardAccess) throws SQLException {
         Connection con = null;
         int rowAffected = -1;
-        try (Connection c = DatabaseConnection.getConnection(); 
-                PreparedStatement ps = c.prepareStatement(FlashcardQuery.ADD_FLASHCARD_ACCESS)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(FlashcardQuery.ADD_FLASHCARD_ACCESS)) {
             con = c;
             c.setAutoCommit(false);
             ps.setLong(1, flashcardAccess.getFlashcard().getId());
             ps.setLong(2, flashcardAccess.getUser().getId());
-            ps.setDate(3, java.sql.Date.valueOf(flashcardAccess.getAccessTime()));
-            
+            ps.setObject(3, flashcardAccess.getAccessTime());
+
             rowAffected = ps.executeUpdate();
             c.commit();
         } catch (SQLException ex) {
@@ -135,4 +141,185 @@ public class FlashcardRepositoryImpl implements FlashcardRepository {
         }
         return rowAffected > 0;
     }
+
+    public List<Flashcard> findTop3Recent(Long userId, int totalCard) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(FlashcardQuery.FIND_TOP_3_RECENT)) {
+            c.setAutoCommit(false);
+            ps.setLong(1, userId);
+            ps.setLong(2, totalCard);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Flashcard> flashcards = new ArrayList();
+                while (rs.next()) {
+                    flashcards.add(Flashcard.builder()
+                            .id(rs.getLong("id"))
+                            .name(rs.getString("name"))
+                            .description(rs.getString("description"))
+                            .status(EFlashcardStatus.valueOf(rs.getString("status").toUpperCase()))
+                            .createdAt(rs.getDate("created_at").toLocalDate())
+                            .lastModifiedAt(rs.getDate("last_modified_at").toLocalDate())
+                            .subject(subjectService.findById(rs.getLong("subject_id")))
+                            .createdBy(rs.getLong("created_by"))
+                            .lastModifiedBy(rs.getLong("last_modified_by"))
+                            .build());
+                }
+                return flashcards;
+            }
+
+        } catch (SQLException ex) {
+
+            Logger.getLogger(FlashcardRepositoryImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return Collections.emptyList();
+    }
+
+    public int countFlashcardSet(Long flashcardId) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(FlashcardQuery.TOTAL_FLASHCARD_SET)) {
+            ps.setLong(1, flashcardId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+        }
+        return 0;
+    }
+
+    public List<FlashcardSet> findFlashcardSet(Long flashcardId) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(FlashcardQuery.FLASHCARD_SET_DETAILS)) {
+            ps.setLong(1, flashcardId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                List<FlashcardSet> flashcards = new ArrayList();
+                while (rs.next()) {
+                    flashcards.add(FlashcardSet.builder()
+                            .id(rs.getLong("id"))
+                            .name(rs.getString("name"))
+                            .answer(rs.getString("answer"))
+                            .createdAt(rs.getDate("created_at").toLocalDate())
+                            .lastModifiedAt(rs.getDate("last_modified_at").toLocalDate())
+                            .flashcard(findById(rs.getLong("flashcard_id")))
+                            .createdBy(rs.getLong("created_by"))
+                            .lastModifiedBy(rs.getLong("last_modified_by"))
+                            .build()
+                    );
+                }
+                return flashcards;
+            }
+
+        } catch (SQLException ex) {
+
+            Logger.getLogger(FlashcardRepositoryImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return Collections.emptyList();
+    }
+
+    public Flashcard findById(Long id) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(FlashcardQuery.FIND_BY_ID)) {
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return Flashcard.builder()
+                        .id(rs.getLong("id"))
+                        .name(rs.getString("name"))
+                        .description(rs.getString("description"))
+                        .status(EFlashcardStatus.valueOf(rs.getString("status").toUpperCase()))
+                        .createdAt(rs.getDate("created_at").toLocalDate())
+                        .lastModifiedAt(rs.getDate("last_modified_at").toLocalDate())
+                        .subject(subjectService.findById(rs.getLong("subject_id")))
+                        .createdBy(rs.getLong("created_by"))
+                        .lastModifiedBy(rs.getLong("last_modified_by"))
+                        .build();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+        }
+        return null;
+    }
+
+    public List<Flashcard> findAll() {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(FlashcardQuery.FIND_ALL); ResultSet rs = ps.executeQuery()) {
+            List<Flashcard> flashcard = new ArrayList<>();
+            while (rs.next()) {
+                flashcard.add(Flashcard.builder()
+                        .id(rs.getLong("id"))
+                        .name(rs.getString("name"))
+                        .description(rs.getString("description"))
+                        .status(EFlashcardStatus.valueOf(rs.getString("status").toUpperCase()))
+                        .createdAt(rs.getDate("created_at").toLocalDate())
+                        .lastModifiedAt(rs.getDate("last_modified_at").toLocalDate())
+                        .subject(subjectService.findById(rs.getLong("subject_id")))
+                        .createdBy(rs.getLong("created_by"))
+                        .lastModifiedBy(rs.getLong("last_modified_by"))
+                        .build());
+            }
+            return flashcard;
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+        }
+        return Collections.emptyList();
+    }
+
+    public List<Flashcard> findByName(String name) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(FlashcardQuery.FIND_BY_TITLE);) {
+            ps.setString(1, "%" + name + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Flashcard> flashcard = new ArrayList<>();
+                while (rs.next()) {
+                    flashcard.add(Flashcard.builder()
+                            .id(rs.getLong("id"))
+                            .name(rs.getString("name"))
+                            .description(rs.getString("description"))
+                            .status(EFlashcardStatus.valueOf(rs.getString("status").toUpperCase()))
+                            .createdAt(rs.getDate("created_at").toLocalDate())
+                            .lastModifiedAt(rs.getDate("last_modified_at").toLocalDate())
+                            .subject(subjectService.findById(rs.getLong("subject_id")))
+                            .createdBy(rs.getLong("created_by"))
+                            .lastModifiedBy(rs.getLong("last_modified_by"))
+                            .build());
+                }
+                return flashcard;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+        }
+        return Collections.emptyList();
+    }
+
+    public List<Flashcard> findByCreator(Long createdBy) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(FlashcardQuery.FIND_BY_CREATOR);) {
+            ps.setLong(1, createdBy);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Flashcard> flashcard = new ArrayList<>();
+                while (rs.next()) {
+                    flashcard.add(Flashcard.builder()
+                            .id(rs.getLong("id"))
+                            .name(rs.getString("name"))
+                            .description(rs.getString("description"))
+                            .status(EFlashcardStatus.valueOf(rs.getString("status").toUpperCase()))
+                            .createdAt(rs.getDate("created_at").toLocalDate())
+                            .lastModifiedAt(rs.getDate("last_modified_at").toLocalDate())
+                            .subject(subjectService.findById(rs.getLong("subject_id")))
+                            .createdBy(rs.getLong("created_by"))
+                            .lastModifiedBy(rs.getLong("last_modified_by"))
+                            .build());
+                }
+                return flashcard;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+        }
+        return Collections.emptyList();
+    }
+
+    public void deleteFlashcardSet(Long id) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement("DELETE FROM flashcard_set WHERE id = ?")) {
+            ps.setLong(1, id);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(FlashcardRepositoryImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
 }

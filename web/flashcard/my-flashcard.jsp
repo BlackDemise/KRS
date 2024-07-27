@@ -5,7 +5,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>All Flashcard</title>
+        <title>My Flashcard</title>
         <!-- Meta tags and CSS links -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="Premium Bootstrap 4 Landing Page Template" />
@@ -40,7 +40,44 @@
                 <jsp:include page="../navbar/horizontal.jsp"/>
                 <div class="container-fluid">
                     <div class="layout-specing">
-                        <a href="${pageContext.request.contextPath}/flashcard/add-flashcard" class="btn btn-secondary">Add New Flashcard</a>
+                        <div class="row bg-soft-dark py-3">
+                            <h5>Recent Access</h5>
+                            <c:forEach var="fl" items="${top3Flashcard}" varStatus="status">
+                                <div class="col-4">
+                                    <div class="card" style="width: 18rem;border-radius: 10px">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${fl.name}</h5>
+                                            <h6 class="card-subtitle mb-2 text-body-secondary">${totalCardsOfTop3[status.index]}</h6>
+                                            <p class="card-text">${creators[status.index].fullName} - ${creators[status.index].role.title.userRole}</p>
+                                            <a href="${pageContext.request.contextPath}/flashcard/flashcard-details?flId=${fl.id}" class="card-link">Learn</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </div>
+                        <hr>
+                        <div class="row bg-soft-dark py-3">
+                            <h5>My Flashcards</h5>
+                            <c:forEach var="fl" items="${myFlashcards}" varStatus="status">
+                                <div class="col-4">
+                                    <div class="card" style="width: 18rem;border-radius: 10px">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${fl.name}</h5>
+                                            <h6 class="card-subtitle mb-2 text-body-secondary">${totalMyCard[status.index]}</h6>
+                                            <p class="card-text">${sessionScope.user.fullName} - ${sessionScope.user.role.title.userRole}</p>
+                                            <a href="${pageContext.request.contextPath}/flashcard/flashcard-details?flId=${fl.id}" class="card-link btn btn-warning">Learn</a>
+                                            <a href="${pageContext.request.contextPath}/flashcard/update-flashcard?flId=${fl.id}" class="btn btn-warning">Edit</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </c:forEach>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 d-flex justify-content-center align-content-center">
+                                <a href="${pageContext.request.contextPath}/flashcard/add-flashcard" class="btn btn-warning">Add A New Flashcard</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <jsp:include page="../footer/footer.jsp"/>
