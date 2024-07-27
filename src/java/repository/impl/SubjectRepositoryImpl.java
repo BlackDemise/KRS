@@ -246,13 +246,13 @@ public class SubjectRepositoryImpl implements SubjectRepository {
         return null;
     }
 
-    public void saveSubjectManager(Long userId, Long subjectId) {
+    public void saveSubjectManager(String managerEmail, Long subjectId) {
         Connection con = null;
 
         try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.ADD_SUBJECT_MANAGER)) {
             con = c;
             c.setAutoCommit(false);
-            ps.setLong(1, userId);
+            ps.setString(1, managerEmail);
             ps.setLong(2, subjectId);
 
             ps.executeUpdate();
@@ -269,21 +269,13 @@ public class SubjectRepositoryImpl implements SubjectRepository {
         }
     }
 
-    public void deleteSubjectManagers(Long subjectId) {
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.DELETE_SUBJECT_MANAGERS)) {
-            ps.setLong(1, subjectId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace(System.err);
-        }
-    }
-
-    public void removeSubjectManagers(Long subjectId) {
+    public void removeSubjectManagers(String managerEmail, Long subjectId) {
         Connection con = null;
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.REMOVE_SUBJECT_MANAGERS)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.DELETE_SUBJECT_MANAGERS)) {
             con = c;
             c.setAutoCommit(false);
-            ps.setLong(1, subjectId);
+            ps.setString(1, managerEmail);
+            ps.setLong(2, subjectId);
             ps.executeUpdate();
             c.commit();
         } catch (SQLException e) {

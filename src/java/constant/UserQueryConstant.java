@@ -20,7 +20,7 @@ public final class UserQueryConstant {
                                       where email like ?
                                       and status like ?
                                       """;
-    
+
     public static final String FIND_BY_ROLE = FIND_ALL + """
                                                          where role_id = ?
                                                          """;
@@ -59,15 +59,15 @@ public final class UserQueryConstant {
                             set password = ?
                             where email = ?
                             """;
-    
-     public static final String FIND_MANAGER_BY_ID = "SELECT u.* FROM user u " +
-                                                    "INNER JOIN subject_manager sm ON u.id = sm.user_id " +
-                                                    "WHERE sm.subject_id = ?";
-     
-      public static final String FIND_STUDENT_BY_ID = "SELECT u.* FROM user u " +
-                                                    "INNER JOIN student_class sc ON u.id = sc.user_id " +
-                                                    "WHERE sc.class_id = ?";
-    
+
+    public static final String FIND_MANAGER_BY_ID = "SELECT u.* FROM user u "
+            + "INNER JOIN subject_manager sm ON u.id = sm.user_id "
+            + "WHERE sm.subject_id = ?";
+
+    public static final String FIND_STUDENT_BY_ID = "SELECT u.* FROM user u "
+            + "INNER JOIN student_class sc ON u.id = sc.user_id "
+            + "WHERE sc.class_id = ?";
+
     private UserQueryConstant() {
         throw new AssertionError("This class is used for storing constants only!");
     }

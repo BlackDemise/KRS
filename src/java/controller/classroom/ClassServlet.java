@@ -1,6 +1,7 @@
 package controller.classroom;
 
 import constant.EUserStatus;
+import controller.subject.SubjectServlet;
 import dto.ClassroomDto;
 import entity.Classroom;
 import entity.Subject;
@@ -26,12 +27,16 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import static org.apache.poi.ss.usermodel.CellType.STRING;
 
-@WebServlet(name = "ClassServlet", urlPatterns = {"/class", "/class/add", "/class/toggle", "/class/update", "/class/uploadStudents"})
-@MultipartConfig
+@WebServlet(name = "ClassServlet", urlPatterns = {"/class", "/class/add", "/class/toggle", "/class/update", "/class/uploadExcel"})
+@MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 5 * 5)
 public class ClassServlet extends HttpServlet {
 
     private final SubjectRepositoryImpl subjectRepository = SubjectRepositoryImpl.getInstance();
@@ -43,15 +48,10 @@ public class ClassServlet extends HttpServlet {
             throws ServletException, IOException {
         final String ACTION = request.getServletPath();
         switch (ACTION) {
-            case "/class":
-                handleAllClasses(request, response);
-                break;
-            case "/class/add":
-                handleAddGet(request, response);
-                break;
-            case "/class/update":
-                handleUpdateGet(request, response);
-                break;
+            case "/class" -> handleAllClasses(request, response);
+            case "/class/add" -> handleAddGet(request, response);
+            case "/class/update" -> handleUpdateGet(request, response);
+            case "/class/toggle" -> handleTogglePost(request, response);
         }
     }
 
@@ -60,18 +60,9 @@ public class ClassServlet extends HttpServlet {
             throws ServletException, IOException {
         final String ACTION = request.getServletPath();
         switch (ACTION) {
-            case "/class/add":
-                handleAddPost(request, response);
-                break;
-            case "/class/update":
-                handleUpdatePost(request, response);
-                break;
-            case "/class/toggle":
-                handleTogglePost(request, response);
-                break;
-            case "/class/uploadStudents":
-                handleUploadStudents(request, response);
-                break;
+            case "/class/add" -> handleAddPost(request, response);
+            case "/class/update" -> handleUpdatePost(request, response);
+            case "/class/uploadExcel" -> uploadExcel(request, response);
         }
     }
 
@@ -256,65 +247,63 @@ public class ClassServlet extends HttpServlet {
         }
     }
 
-    private void handleUploadStudents(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String classIdStr = request.getParameter("classId");
-        if (classIdStr == null || classIdStr.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Class ID is required");
-            return;
-        }
-
-        Long classId;
+    private void uploadExcel(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Part filePart = null;
         try {
-            classId = Long.parseLong(classIdStr);
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid Class ID");
-            return;
+            filePart = request.getPart("studentsFile");
+        } catch (IOException | ServletException ex) {
+            Logger.getLogger(SubjectServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        Part filePart = request.getPart("studentsFile");
-        if (filePart == null || filePart.getSize() == 0) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "File is required");
-            return;
-        }
+        if (filePart != null) {
+            if (filePart.getSize() > 0) {
+                try (InputStream inputStream = filePart.getInputStream()) {
+                    Workbook workbook = new XSSFWorkbook(inputStream);
+                    Sheet sheet = workbook.getSheetAt(0); // Assuming you want to read the first sheet
 
-        Classroom classroom = classRepository.findById(classId);
-        if (classroom == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Class not found");
-            return;
-        }
+                    Set<String> excelStudentEmails = new HashSet<>();
 
-        importStudentsFromExcel(filePart, classroom);
-        response.sendRedirect(request.getContextPath() + "/class?uploaded=successful");
-    }
+                    for (Row row : sheet) {
+                        Cell idCell = row.getCell(0); // Assuming the manager ID is in the first column
+                        if (idCell != null) {
+                            String studentEmail = idCell.getStringCellValue().trim();
+                            excelStudentEmails.add(studentEmail);
+                        }
+                    }
 
-    private void importStudentsFromExcel(Part filePart, Classroom classroom) {
-        try (InputStream inputStream = filePart.getInputStream(); Workbook workbook = new XSSFWorkbook(inputStream)) {
+                    String classId = request.getParameter("classId");
+                    List<User> dbStudents = userRepository.findStudentById(Long.valueOf(classId));
 
-            Sheet sheet = workbook.getSheetAt(0);
-            List<User> students = new ArrayList<>();
+                    // Determine which manager IDs to add and which to remove
+                    Set<String> dbStudentEmailsSet = new HashSet<>();
+                    for (User u : dbStudents) {
+                        dbStudentEmailsSet.add(u.getEmail());
+                    }
+                    Set<String> emailsToAdd = new HashSet<>(excelStudentEmails);
+                    emailsToAdd.removeAll(dbStudentEmailsSet);
+                    Set<String> emailsToRemove = new HashSet<>(dbStudentEmailsSet);
+                    emailsToRemove.removeAll(excelStudentEmails);
 
-            for (Row row : sheet) {
-                if (row.getRowNum() == 0) { // Skip header row
-                    continue;
+                    // Add new manager IDs
+                    for (String mngEmail : emailsToAdd) {
+                        classRepository.addStudentToClass(mngEmail, Long.valueOf(classId));
+                    }
+
+                    // Remove missing manager IDs
+                    for (String mngEmail : emailsToRemove) {
+                        classRepository.deleteStudents(mngEmail, Long.valueOf(classId));
+                    }
+
+                    response.sendRedirect("/class?msg=successful");
+                } catch (Exception e) {
+                    e.printStackTrace(System.out);
+                    response.sendRedirect("/class?msg=failed");
                 }
-
-                String studentName = row.getCell(0).getStringCellValue();
-                String studentEmail = row.getCell(1).getStringCellValue();
-                String studentPhoneNumber = getCellAsString(row.getCell(2));
-                LocalDate studentDob = getCellAsDate(row.getCell(3)); // Assuming date is in LocalDate format
-
-                // Create User object with data from the Excel file
-                User student = userRepository.findByEmail(studentEmail);
-                students.add(student);
+            } else {
+                response.sendRedirect("/class?msg=empty-file");
             }
-
-            for (User student : students) {
-                // Add student to class
-//                userRepository.save(student);
-                classRepository.addStudentToClass(student, classroom);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } else {
+            response.sendRedirect("/class?msg=empty-file");
         }
     }
 

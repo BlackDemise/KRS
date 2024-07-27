@@ -172,7 +172,7 @@
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button class="btn btn-primary" data-bs-dismiss="modal">No</button>
-                                                            <button class="btn btn-warning" onclick="confirmToggleClassStatus(${c.classRoom.id}, '${c.classRoom.status}')" data-bs-dismiss="modal">Yes</button>
+                                                            <a href="${pageContext.request.contextPath}/class/toggle?classId=${c.classRoom.id}&currentStatus=${c.classRoom.status}" class="btn btn-warning">Yes</a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -271,7 +271,7 @@
                                         </div>
                                         <div class="modal-body">
                                             <!-- File Upload Form -->
-                                            <form action="${pageContext.request.contextPath}/class/uploadStudents" method="post" enctype="multipart/form-data">
+                                            <form action="${pageContext.request.contextPath}/class/uploadExcel" method="post" enctype="multipart/form-data">
                                                 <input type="hidden" name="classId" value="${c.classRoom.id}">
                                                 <div class="form-group">
                                                     <label for="fileUpload${c.classRoom.id}">Upload Students File</label>
@@ -308,81 +308,80 @@
                                 </div>
                             </div>
                         </c:forEach>
-
-
-
-
                         <!-- Success Toast Message -->
-                        <c:choose>
-                            <c:when test="${param.added == 'successful'}">
-                                <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
-                                        <div class="toast-header">
-                                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
-                                            <strong class="me-auto">KRS System</strong>
-                                            <small class="mt-1">A few seconds ago</small>
-                                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                                        </div>
-                                        <div class="toast-body text-success-emphasis">
-                                            Added successfully!
-                                        </div>
-                                    </div>
-                                </div>
-                            </c:when>
-                            <c:when test="${param.updated == 'successful'}">
-                                <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
-                                        <div class="toast-header">
-                                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
-                                            <strong class="me-auto">KRS System</strong>
-                                            <small class="mt-1">A few seconds ago</small>
-                                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                                        </div>
-                                        <div class="toast-body text-success-emphasis">
-                                            Updated successfully!
-                                        </div>
-                                    </div>
-                                </div>
-                            </c:when>
-                            <c:when test="${param.statusChanged == 'successful'}">
-                                <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
-                                        <div class="toast-header">
-                                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
-                                            <strong class="me-auto">KRS System</strong>
-                                            <small class="mt-1">A few seconds ago</small>
-                                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                                        </div>
-                                        <div class="toast-body text-success-emphasis">
-                                            Status changed successfully!
-                                        </div>
-                                    </div>
-                                </div>
-                            </c:when>
-                            <c:when test="${param.statusChanged == 'failed'}">
-                                <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
-                                        <div class="toast-header">
-                                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
-                                            <strong class="me-auto">KRS System</strong>
-                                            <small class="mt-1">A few seconds ago</small>
-                                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                                        </div>
-                                        <div class="toast-body text-danger-emphasis">
-                                            Failed to change status!
-                                        </div>
-                                    </div>
-                                </div>
-                            </c:when>
-                        </c:choose>
-                        <!-- End Success Toast Message -->
+
 
                     </div>
                 </div>
                 <jsp:include page="../footer/footer.jsp"/>
             </main>
         </div>
+        <c:choose>
+            <c:when test="${param.msg == 'successful'}">
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
+                        <div class="toast-header">
+                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
+                            <strong class="me-auto">KRS System</strong>
+                            <small class="mt-1">A few seconds ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body text-success">
+                            Change Students Successfully!
+                        </div>
+                    </div>
+                </div>
+            </c:when>
 
+            <c:when test="${param.msg == 'failed'}">
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
+                        <div class="toast-header">
+                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
+                            <strong class="me-auto">KRS System</strong>
+                            <small class="mt-1">A few seconds ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body text-danger">
+                            Change Students Failed!
+                        </div>
+                    </div>
+                </div>
+            </c:when>
+
+            <c:when test="${param.statusChanged == 'successful'}">
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
+                        <div class="toast-header">
+                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
+                            <strong class="me-auto">KRS System</strong>
+                            <small class="mt-1">A few seconds ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body text-success">
+                            Status changed successfully!
+                        </div>
+                    </div>
+                </div>
+            </c:when>
+
+            <c:when test="${param.statusChanged == 'failed'}">
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
+                        <div class="toast-header">
+                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
+                            <strong class="me-auto">KRS System</strong>
+                            <small class="mt-1">A few seconds ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body text-danger">
+                            Failed to change status!
+                        </div>
+                    </div>
+                </div>
+            </c:when>
+        </c:choose>
+        <!-- End Success Toast Message -->
         <!-- javascript -->
         <script src="../assets/js/jquery.min.js"></script>
         <script src="../assets/js/bootstrap.bundle.min.js"></script>
@@ -414,23 +413,6 @@
                                                                         toast.show();
                                                                     }
                                                                 });
-        </script>
-        <script>
-            function confirmToggleClassStatus(classId, currentStatus) {
-                const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-
-                $.ajax({
-                    url: '${pageContext.request.contextPath}/class/toggle',
-                    type: 'POST',
-                    data: {classId: classId, currentStatus: currentStatus},
-                    success: function () {
-                        location.reload(); // Reload the page to reflect the changes
-                    },
-                    error: function () {
-                        alert('Failed to update class status');
-                    }
-                });
-            }
         </script>
     </body>
 </html>

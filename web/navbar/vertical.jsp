@@ -71,7 +71,6 @@
                                     <ul>
                                         <li><a href="${pageContext.request.contextPath}/subject">All Subjects</a></li>
                                         <li><a href="${pageContext.request.contextPath}/subject/add">Add Subject</a></li>
-                                        <li><a href="${pageContext.request.contextPath}/subject/manager">Subject Manager</a></li>
                                     </ul>
                                 </div>
                             </li>

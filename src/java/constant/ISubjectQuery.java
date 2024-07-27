@@ -63,15 +63,17 @@ public interface ISubjectQuery {
                                 WHERE s.name = ?
                                 """;
     public static final String ADD_SUBJECT_MANAGER = """
-                                 INSERT INTO subject_manager (user_id, subject_id) VALUES (?, ?)   
+                                 INSERT INTO subject_manager (user_id, subject_id)
+                                 VALUES ((select id from user where email like ?), ?)   
                                  """;
 
     public static final String COUNT_ALL = """
                                             SELECT COUNT(*) FROM subject
                                             """;
 
-    public static final String DELETE_SUBJECT_MANAGERS = "DELETE FROM subject_managers WHERE subject_id = ?";
-
-    public static final String REMOVE_SUBJECT_MANAGERS = "DELETE FROM subject_managers WHERE subject_id = ?";
+    public static final String DELETE_SUBJECT_MANAGERS = """
+                                                         delete from subject_manager
+                                                         where user_id = (select id from user where email like ?) and subject_id = ?
+                                                         """;
 
 }
