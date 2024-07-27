@@ -14,7 +14,7 @@ CREATE TABLE user (
     dob DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     password VARCHAR(255) NOT NULL,
     status VARCHAR(10) CHECK (status IN ('Active', 'Inactive')),
-    role_id INT DEFAULT 5,
+    role_id INT DEFAULT 4,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     last_modified_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     created_by INT,
@@ -51,10 +51,9 @@ CREATE TABLE subject (
 CREATE TABLE class (
     class_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    max_attendance INT NOT NULL DEFAULT 0,
     teacher_id INT,
     subject_id INT,
-    status VARCHAR(10) NOT NULL DEFAULT 'ACTIVE'
+    status VARCHAR(10) NOT NULL DEFAULT 'Active'
 );
 
 CREATE TABLE material (
@@ -126,12 +125,6 @@ CREATE TABLE exam (
     UNIQUE (title, class_id)
 );
 
--- Create term table
-CREATE TABLE term (
-    term_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
-);
-
 -- Create category table
 CREATE TABLE category (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -192,39 +185,36 @@ CREATE TABLE practice_details (
     PRIMARY KEY (student_id, lesson_id, taken_at)
 );
 
--- Create user_settings table
-CREATE TABLE user_settings (
-    settings_id INT AUTO_INCREMENT PRIMARY KEY,
-    config TEXT NOT NULL,
-    user_id INT NOT NULL
+-- Create flashcard table
+CREATE TABLE flashcard (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    status VARCHAR(10) CHECK (status IN ('Show', 'Hidden')),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_modified_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    subject_id INT,
+    created_by INT,
+    last_modified_by INT
 );
 
--- Create subject_settings table
-CREATE TABLE subject_settings (
-    settings_id INT AUTO_INCREMENT PRIMARY KEY,
-    config TEXT NOT NULL,
-    subject_id INT NOT NULL
+-- Create flashcard_set table
+CREATE TABLE flashcard_set (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    answer TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_modified_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    flashcard_id INT,
+    created_by INT,
+    last_modified_by INT
 );
 
--- Create class_settings table
-CREATE TABLE class_settings (
-    settings_id INT AUTO_INCREMENT PRIMARY KEY,
-    config TEXT NOT NULL,
-    class_id INT NOT NULL
-);
-
--- Create post_settings table
-CREATE TABLE post_settings (
-    settings_id INT AUTO_INCREMENT PRIMARY KEY,
-    config TEXT NOT NULL,
-    post_id INT NOT NULL
-);
-
--- Create exam_settings table
-CREATE TABLE exam_settings (
-    settings_id INT AUTO_INCREMENT PRIMARY KEY,
-    config TEXT NOT NULL,
-    exam_id INT NOT NULL
+create table flashcard_access (
+	fa_id int auto_increment primary key,
+    fl_id int,
+    user_id int,
+    access_time datetime
 );
 
 -- Add constraints
@@ -256,17 +246,17 @@ ALTER TABLE exam ADD CONSTRAINT FK_exam_creator FOREIGN KEY (created_by) REFEREN
 ALTER TABLE practice_details ADD CONSTRAINT FK_practice_lesson FOREIGN KEY (lesson_id) REFERENCES lesson(lesson_id);
 ALTER TABLE practice_details ADD CONSTRAINT FK_practice_student FOREIGN KEY (student_id) REFERENCES user(id);
 ALTER TABLE material ADD CONSTRAINT FK_Material_Lesson FOREIGN KEY (lesson_id) REFERENCES lesson(lesson_id);
-
-ALTER TABLE user_settings ADD CONSTRAINT FK_user_settings_user FOREIGN KEY (user_id) REFERENCES user(id) ON UPDATE CASCADE ON DELETE CASCADE;
-ALTER TABLE subject_settings ADD CONSTRAINT FK_subject_settings_subject FOREIGN KEY (subject_id) REFERENCES subject(id) ON UPDATE CASCADE ON DELETE CASCADE;
-ALTER TABLE class_settings ADD CONSTRAINT FK_class_settings_class FOREIGN KEY (class_id) REFERENCES class(class_id) ON UPDATE CASCADE ON DELETE CASCADE;
-ALTER TABLE post_settings ADD CONSTRAINT FK_post_settings_post FOREIGN KEY (post_id) REFERENCES post(post_id) ON UPDATE CASCADE ON DELETE CASCADE;
-ALTER TABLE exam_settings ADD CONSTRAINT FK_exam_settings_exam FOREIGN KEY (exam_id) REFERENCES exam(exam_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
+ALTER TABLE flashcard ADD CONSTRAINT FK_flashcard_subject FOREIGN KEY (subject_id) REFERENCES subject(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE flashcard ADD CONSTRAINT FK_flashcard_created_by FOREIGN KEY (created_by) REFERENCES user(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE flashcard ADD CONSTRAINT FK_flashcard_last_modified_by FOREIGN KEY (last_modified_by) REFERENCES user(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE flashcard_set ADD CONSTRAINT FK_flashcard_set_flashcard FOREIGN KEY (flashcard_id) REFERENCES flashcard(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE flashcard_set ADD CONSTRAINT FK_flashcard_set_created_by FOREIGN KEY (created_by) REFERENCES user(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE flashcard_set ADD CONSTRAINT FK_flashcard_set_last_modified_by FOREIGN KEY (last_modified_by) REFERENCES user(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE flashcard_access ADD CONSTRAINT FK_fl_access_flashcard FOREIGN KEY (fl_id) REFERENCES flashcard(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE flashcard_access ADD CONSTRAINT FK_user FOREIGN KEY (user_id) REFERENCES user(id) ON UPDATE CASCADE ON DELETE CASCADE;
 -- Insert data into role table
 INSERT INTO role (title, description) VALUES
 ('ROLE_ADMINISTRATOR', 'Manage all'),
-('ROLE_OPERATOR', 'Manage system configurations'),
 ('ROLE_MANAGER', 'Manage classes'),
 ('ROLE_TEACHER', 'Manage students in classes'),
 ('ROLE_STUDENT', 'Study');
@@ -275,42 +265,29 @@ INSERT INTO role (title, description) VALUES
 INSERT INTO user (full_name, email, phone_number, dob, note, password, status, role_id) VALUES
 ('Nguyễn Văn A', 'a@gmail.com', '1234567890', '2000-01-01', 'Note about A', '$2a$12$Fk8sRsuuofDx1hqi2wpvUeSYNkhWz7BHmtgkCkWc49pK12uTAJ1HS', 'Active', 1),
 ('Nguyễn Văn B', 'b@gmail.com', '1234567890', '2000-01-01', 'Note about B', '$2a$12$jILq.xrmTzVRcGLVj0XrWevQE/AZ2nu/AAVqFqD4hv1QdMkedykA.', 'Active', 2),
-('Nguyễn Văn C', 'c@gmail.com', '1234567890', '2000-01-01', 'Note about C', '$2a$12$h7qXYiYJG8jqLVP9QkvSL.wwfzqd9anJrZtNu4ZrqLqddUrk8/l5y','Active', 3),
-('Nguyễn Văn D', 'd@gmail.com', '1234567890', '2000-01-01', 'Note about D', '$2a$12$.evgJEf1MDXo7avwRAe90OkPOBKxtQIEaGQghP9IwGMkDO1fWDISC', 'Active', 4),
-('Nguyễn Văn E', 'e@gmail.com', '1234567890', '2000-01-01', 'Note about E', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 5),
-('Nguyễn Văn F', 'f@gmail.com', '1234567890', '2000-01-01', 'Note about F', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
-('Nguyễn Văn H', 'h@gmail.com', '1234567890', '2000-01-01', 'Note about H', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
-('Nguyễn Văn I', 'i@gmail.com', '1234567890', '2000-01-01', 'Note about I', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
-('Nguyễn Văn K', 'k@gmail.com', '1234567890', '2000-01-01', 'Note about K', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
-('Nguyễn Văn L', 'l@gmail.com', '1234567890', '2000-01-01', 'Note about L', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
-('Nguyễn Văn M', 'm@gmail.com', '1234567890', '2000-01-01', 'Note about M', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
+('Nguyễn Văn C', 'c@gmail.com', '1234567890', '2000-01-01', 'Note about C', '$2a$12$h7qXYiYJG8jqLVP9QkvSL.wwfzqd9anJrZtNu4ZrqLqddUrk8/l5y','Active', 2),
+('Nguyễn Văn D', 'd@gmail.com', '1234567890', '2000-01-01', 'Note about D', '$2a$12$.evgJEf1MDXo7avwRAe90OkPOBKxtQIEaGQghP9IwGMkDO1fWDISC', 'Active', 2),
+('Nguyễn Văn E', 'e@gmail.com', '1234567890', '2000-01-01', 'Note about E', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 2),
+('Nguyễn Văn F', 'f@gmail.com', '1234567890', '2000-01-01', 'Note about F', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 3),
+('Nguyễn Văn H', 'h@gmail.com', '1234567890', '2000-01-01', 'Note about H', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 3),
+('Nguyễn Văn I', 'i@gmail.com', '1234567890', '2000-01-01', 'Note about I', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 3),
+('Nguyễn Văn K', 'k@gmail.com', '1234567890', '2000-01-01', 'Note about K', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 3),
+('Nguyễn Văn L', 'l@gmail.com', '1234567890', '2000-01-01', 'Note about L', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 3),
+('Nguyễn Văn M', 'm@gmail.com', '1234567890', '2000-01-01', 'Note about M', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 3),
 ('Nguyễn Văn N', 'n@gmail.com', '1234567890', '2000-01-01', 'Note about N', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
 ('Nguyễn Văn O', 'o@gmail.com', '1234567890', '2000-01-01', 'Note about O', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
-('Nguyễn Văn P', 'p@gmail.com', '1234567890', '2000-01-01', 'Note about P', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 5),
-('Nguyễn Văn Q', 'q@gmail.com', '1234567890', '2000-01-01', 'Note about Q', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 5),
-('Nguyễn Văn S', 's@gmail.com', '1234567890', '2000-01-01', 'Note about S', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 5),
-('Nguyễn Văn T', 't@gmail.com', '1234567890', '2000-01-01', 'Note about T', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 5),
-('Nguyễn Văn X', 'x@gmail.com', '1234567890', '2000-01-01', 'Note about X', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 5),
-('Nguyễn Văn Y', 'y@gmail.com', '1234567890', '2000-01-01', 'Note about Y', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 5),
-('Nguyễn Văn W', 'w@gmail.com', '1234567890', '2000-01-01', 'Note about W', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 5),
-('Nguyễn Văn Z', 'z@gmail.com', '1234567890', '2000-01-01', 'Note about Z', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 5),
-('Nguyễn Văn R', 'r@gmail.com', '1234567890', '2000-01-01', 'Note about R', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 5),
-('Nguyễn Văn AA', 'aa@gmail.com', '1234567890', '2000-01-01', 'Note about AA', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 5),
-('Nguyễn Văn AB', 'ab@gmail.com', '1234567890', '2000-01-01', 'Note about AB', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 5),
-('Nguyễn Văn AC', 'ac@gmail.com', '1234567890', '2000-01-01', 'Note about AC', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 5);
-
--- Insert data into term table
-INSERT INTO term (name) VALUES
-('Fall2022'),
-('Spring2023'),
-('Summer2023'),
-('Fall2023'),
-('Spring2024'),
-('Summer2024'),
-('Fall2024'),
-('Spring2025'),
-('Summer2025'),
-('Fall2025');
+('Nguyễn Văn P', 'p@gmail.com', '1234567890', '2000-01-01', 'Note about P', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
+('Nguyễn Văn Q', 'q@gmail.com', '1234567890', '2000-01-01', 'Note about Q', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
+('Nguyễn Văn S', 's@gmail.com', '1234567890', '2000-01-01', 'Note about S', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
+('Nguyễn Văn T', 't@gmail.com', '1234567890', '2000-01-01', 'Note about T', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
+('Nguyễn Văn X', 'x@gmail.com', '1234567890', '2000-01-01', 'Note about X', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
+('Nguyễn Văn Y', 'y@gmail.com', '1234567890', '2000-01-01', 'Note about Y', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
+('Nguyễn Văn W', 'w@gmail.com', '1234567890', '2000-01-01', 'Note about W', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
+('Nguyễn Văn Z', 'z@gmail.com', '1234567890', '2000-01-01', 'Note about Z', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
+('Nguyễn Văn R', 'r@gmail.com', '1234567890', '2000-01-01', 'Note about R', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
+('Nguyễn Văn AA', 'aa@gmail.com', '1234567890', '2000-01-01', 'Note about AA', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
+('Nguyễn Văn AB', 'ab@gmail.com', '1234567890', '2000-01-01', 'Note about AB', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4),
+('Nguyễn Văn AC', 'ac@gmail.com', '1234567890', '2000-01-01', 'Note about AC', '$2a$12$x.D73iYi5CrAPH5QfKeuJeaAKmyaRrPHrWwT9G9D9xo47kPqgCJb6', 'Active', 4);
 
 -- Insert data into category table
 INSERT INTO category (name, description, note, status) VALUES
@@ -329,22 +306,21 @@ INSERT INTO subject (name, code, description, note, status, created_by, last_mod
 ('Ethics in IT', 'ITE302c', 'Description for ITE302c', 'Notes for ITE302c', 'Active', 5, 5, 5);
 
 -- Insert data into class table
-INSERT INTO class (name, max_attendance, teacher_id, subject_id) VALUES
-('SE1808', 30, 1, 1),
-('SE1234', 25, 2, 2),
-('SE2432', 50, 3, 3),
-('SE1808', 40, 4, 4),
-('SE1990', 50, 5, 5);
+INSERT INTO class (name, teacher_id, subject_id, status) VALUES
+('SE1808', 1, 1, 'Active'),
+('SE1234', 2, 2, 'Active'),
+('SE2432', 3, 3, 'Active'),
+('SE1808', 4, 4, 'Active'),
+('SE1990', 5, 5, 'Active');
 
 -- Insert data into student_class table
 INSERT INTO student_class (user_id, class_id) VALUES 
-(15, 3), (7, 3), (17, 4), (11, 1), (13, 2), (11, 5), (22, 3), (14, 3), 
-(8, 4), (20, 2), (19, 5), (18, 1), (10, 1), (23, 3), (25, 4), (9, 3), 
-(21, 3), (15, 4), (24, 2), (18, 2), (23, 2), (25, 1), (10, 2), (21, 4), 
-(15, 5), (9, 2), (13, 4), (24, 5), (8, 2), (22, 5), (22, 1), (19, 3), 
-(6, 1), (5, 1), (18, 3), (12, 4), (16, 2), (23, 5), (21, 1), (15, 2), 
-(17, 5), (17, 1), (13, 3), (16, 5), (8, 5), (20, 1), (19, 4), (18, 4), 
-(21, 5), (10, 4);
+(15, 3), (12, 3), (17, 4), (13, 1), (13, 2), (14, 5), (22, 3), (14, 3), 
+(15, 4), (20, 2), (19, 5), (18, 1), (16, 1), (23, 3), (25, 4), (17, 3), 
+(21, 3), (24, 1), (24, 2), (18, 2), (23, 2), (25, 1), (18, 5), (21, 4), 
+(15, 5), (19, 2), (13, 4), (24, 5), (20, 5), (22, 5), (22, 4), (19, 3), 
+(21, 1), (22, 1), (18, 3), (12, 4), (16, 2), (23, 5), (21, 5), (15, 2), 
+(17, 5), (17, 1), (13, 3), (16, 5), (20, 1), (19, 4), (18, 4);
 
 -- Insert data into lesson table
 INSERT INTO lesson (name, subject_id, status) VALUES
