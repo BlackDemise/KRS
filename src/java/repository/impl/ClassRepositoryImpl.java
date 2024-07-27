@@ -260,7 +260,7 @@ public class ClassRepositoryImpl implements ClassRepository {
 
     public void deleteStudents(String studentEmail, Long classroom) {
         String sql = "delete from student_class\n"
-                + "where user_id = (select id from user where email like ?) and subject_id = ?";
+                + "where user_id = (select id from user where email like ?) and class_id = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, studentEmail);
             ps.setLong(2, classroom);
