@@ -70,4 +70,30 @@ public final class ClassQueryConstant {
                                                             join student_class sc on c.class_id = sc.class_id
                                                             where sc.user_id = ?
                                                             """;
+    
+    public static final String GET_CLASS_STATISTICS = """
+                                                      SELECT 
+                                                          s.id AS subject_id,
+                                                          s.name AS subject_name,
+                                                          s.code AS subject_code,
+                                                          s.category AS subject_category,
+                                                          c.class_id,
+                                                          c.name AS class_name,
+                                                          u.id AS teacher_id,
+                                                          u.full_name AS teacher_full_name,
+                                                          COUNT(sc.user_id) AS total_students_in_class
+                                                      FROM
+                                                          subject s
+                                                          JOIN class c ON s.id = c.subject_id
+                                                          JOIN user u ON c.teacher_id = u.id
+                                                          JOIN student_class sc ON sc.class_id = c.class_id
+                                                      WHERE
+                                                          s.status LIKE ? and s.id = ?
+                                                      GROUP BY 
+                                                          s.id, s.name, s.code, s.category,
+                                                          c.class_id, c.name,
+                                                          u.id, u.full_name
+                                                      HAVING 
+                                                          MAX(CASE WHEN sc.user_id = ? THEN 1 ELSE 0 END) = ?;
+                                                      """;
 }

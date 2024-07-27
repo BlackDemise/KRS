@@ -1,11 +1,11 @@
 package service;
 
-import dto.ExamDetailsDto;
-import java.util.List;
+import dto.ExamStatistics;
+import java.util.Map;
 
 public interface ExamService {
 
     int getTotalExamsByStudent(Long studentId);
     int getTotalPracticesByStudent(Long studentId);
-    List<ExamDetailsDto> getExamStatisticsOfAStudent(Long studentId);
+    Map<Long, ExamStatistics> getExamStatisticsOfAStudent(Long studentId);
 }

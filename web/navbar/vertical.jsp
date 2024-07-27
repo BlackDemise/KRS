@@ -268,7 +268,7 @@
                             </li>
 
                             <li>
-                                <a href="/my-classes"><i class="uil uil-user me-2 d-inline-block"></i>My Classes</a>
+                                <a href="/my-subjects"><i class="uil uil-user me-2 d-inline-block"></i>My Subjects</a>
                             </li>
 
                             <li class="sidebar-dropdown">

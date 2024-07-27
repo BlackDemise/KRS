@@ -5,7 +5,7 @@
 
     <head>
         <meta charset="utf-8" />
-        <title>My Classes</title>
+        <title>My Subjects</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="Premium Bootstrap 4 Landing Page Template" />
         <meta name="keywords" content="Appointment, Booking, System, Dashboard, Health" />
@@ -50,10 +50,10 @@
                     <div class="layout-specing">
                         <div class="row">
                             <div class="d-flex justify-content-between align-items-center w-100">
-                                <h5 class="mb-0">My Classes</h5>
+                                <h5 class="mb-0">My Subjects</h5>
                                 <div class="d-flex w-50 justify-content-end">
                                     <form class="d-flex w-100" action="" method="get">
-                                        <input class="form-control me-2" type="search" placeholder="Enter class name..." aria-label="Search">
+                                        <input class="form-control me-2" type="search" placeholder="Enter subject code..." aria-label="Search">
                                         <button class="btn btn-primary" type="submit">Search</button>
                                     </form>
                                 </div>
@@ -61,19 +61,15 @@
                         </div>
 
                         <div class="row">
-                            <c:forEach var="cd" items="${classDtos}">
+                            <c:forEach var="sd" items="${subjectDtos}">
                                 <div class="col-6 my-3">
                                     <div class="card">
                                         <div class="card-body">
-                                            <p>${cd.subjectName}</p>
-                                            <p>${cd.subjectCode}</p>
-                                            <p>${cd.className}</p>
-                                            <p>${cd.teacherFullName}</p>
-                                            <p>${cd.totalStudents}</p>
-                                            <div class="progress my-3" role="progressbar" aria-label="Basic example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-                                                <div class="progress-bar" style="width: 50%"></div>
-                                            </div>
-                                            <a href="/my-subjects/class?subjectId=${cd.subjectId}&classId=${cd.classId}" class="btn btn-primary">Go to class</a>
+                                            <p>${sd.subjectName}</p>
+                                            <p>${sd.subjectCode}</p>
+                                            <p>${sd.subjectCategory.name}</p>
+                                            <p>${sd.totalStudents}</p>
+                                            <a href="/my-subjects/class?subjectId=${sd.subjectId}" class="btn btn-primary">Go to courses</a>
                                         </div>
                                     </div>
                                 </div>

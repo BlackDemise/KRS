@@ -41,9 +41,35 @@ public final class ExamQueryConstant {
                                                                 """;
     
     public static final String GET_EXAM_STATISTICS_OF_A_STUDENT = """
-                                                                  select eq.exam_id, eq.question_id, ed.user_id, ed.submitted_answer, ed.correct_answer
-                                                                  from exam_question eq
-                                                                  left join exam_details ed on eq.exam_id = ed.exam_id and eq.question_id = ed.question_id
-                                                                  where ed.user_id = ?
+                                                                  SELECT 
+                                                                    eq.exam_id, 
+                                                                    e.title AS exam_title, 
+                                                                    eq.question_id, 
+                                                                    ed.user_id, 
+                                                                    c.name AS class_name, 
+                                                                    ed.submitted_answer, 
+                                                                    ed.correct_answer, 
+                                                                    ed.taken_at 
+                                                                  FROM 
+                                                                    exam_question eq 
+                                                                    LEFT JOIN exam_details ed ON eq.exam_id = ed.exam_id 
+                                                                    AND eq.question_id = ed.question_id 
+                                                                    LEFT JOIN exam e ON e.exam_id = eq.exam_id 
+                                                                    LEFT JOIN class c on c.class_id = e.class_id 
+                                                                  WHERE 
+                                                                    ed.user_id = ? 
+                                                                    OR (
+                                                                      ed.user_id IS NULL 
+                                                                      AND eq.exam_id IN (
+                                                                        SELECT 
+                                                                          DISTINCT ed_inner.exam_id 
+                                                                        FROM 
+                                                                          exam_details ed_inner 
+                                                                        WHERE 
+                                                                          ed_inner.user_id = ?
+                                                                      )
+                                                                    ) 
+                                                                  ORDER BY 
+                                                                    eq.exam_id;
                                                                   """;
 }

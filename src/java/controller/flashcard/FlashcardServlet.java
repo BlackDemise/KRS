@@ -37,6 +37,7 @@ public class FlashcardServlet extends HttpServlet {
                 request.getRequestDispatcher("/flashcard/all-flashcard.jsp").forward(request, response);
                 break;
             case "/flashcard/my-flashcard":
+                
                 request.setAttribute("currentSite", "/flashcard/my-flashcard");
                 request.getRequestDispatcher("/flashcard/my-flashcard.jsp").forward(request, response);
                 break;

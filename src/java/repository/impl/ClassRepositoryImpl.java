@@ -14,6 +14,7 @@ import java.util.List;
 
 import static mapper.ClassMapper.classMapper;
 import constant.ClassQueryConstant;
+import dto.ClassDto;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -426,5 +427,37 @@ public class ClassRepositoryImpl implements ClassRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<ClassDto> getClassStatisticsByStudentAndSubject(Long studentId, Long subjectId) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ClassQueryConstant.GET_CLASS_STATISTICS)) {
+            ps.setString(1, "Active");
+            ps.setLong(2, subjectId);
+            ps.setLong(3, studentId);
+            ps.setLong(4, 1L);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                List<ClassDto> classDtos = new ArrayList();
+
+                while (rs.next()) {
+                    classDtos.add(ClassDto.builder()
+                            .subjectId(rs.getLong("subject_id"))
+                            .subjectName(rs.getString("subject_name"))
+                            .subjectCode(rs.getString("subject_code"))
+                            .subjectCategory(rs.getString("subject_category"))
+                            .classId(rs.getLong("class_id"))
+                            .className(rs.getString("class_name"))
+                            .teacherId(rs.getLong("teacher_id"))
+                            .teacherFullName(rs.getString("teacher_full_name"))
+                            .build());
+                }
+
+                return classDtos;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ClassRepositoryImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return Collections.emptyList();
     }
 }

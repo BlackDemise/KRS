@@ -1,5 +1,6 @@
 package service.impl;
 
+import dto.SubjectDto;
 import entity.Subject;
 import java.util.List;
 import repository.impl.SubjectRepositoryImpl;
@@ -56,9 +57,12 @@ public class SubjectServiceImpl implements SubjectService {
     public void removeSubjectManagers(Long subjectId) {
         subjectRepository.removeSubjectManagers(subjectId);
     }
-    
-    public List<Subject> findAll(){
+
+    public List<Subject> findAll() {
         return subjectRepository.findAll();
     }
 
+    public List<SubjectDto> getSubjectStatisticsByStudent(Long studentId) {
+        return subjectRepository.getSubjectStatisticsByStudent(studentId);
+    }
 }

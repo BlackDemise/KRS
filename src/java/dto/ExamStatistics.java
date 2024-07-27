@@ -2,7 +2,6 @@ package dto;
 
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,15 +10,21 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ExamDetailsDto {
 
+public class ExamStatistics {
     private Long examId;
     private String examTitle;
     private String className;
-    private Long questionId;
-    private Long studentId;
-    private Long submittedAnswerId;
-    private Long correctAnswerId;
+    private int actualScore;
+    private int maxScore;
     private LocalDate takenAt;
+    
+    public void incrementActualScore() {
+        actualScore++;
+    }
+    
+    public void incrementMaxScore() {
+        maxScore++;
+    }
 }
+

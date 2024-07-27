@@ -1,7 +1,9 @@
 package repository.impl;
 
 import entity.Subject;
-import constant.ISubjectQuery;
+import constant.SubjectQuery;
+import dto.SubjectDto;
+import entity.Category;
 import java.util.List;
 import mysql.DatabaseConnection;
 import repository.SubjectRepository;
@@ -13,7 +15,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static mapper.SubjectMapper.subjectMapper;
+import service.impl.CategoryServiceImpl;
 
 public class SubjectRepositoryImpl implements SubjectRepository {
 
@@ -22,10 +27,12 @@ public class SubjectRepositoryImpl implements SubjectRepository {
     public static SubjectRepositoryImpl getInstance() {
         return instance;
     }
-
+    
+    private final CategoryServiceImpl categoryService = CategoryServiceImpl.getInstance();
+    
     @Override
     public List<Subject> findAll() {
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.FIND_ALL); ResultSet rs = ps.executeQuery()) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.FIND_ALL); ResultSet rs = ps.executeQuery()) {
 
             List<Subject> subjects = new ArrayList<>();
 
@@ -41,7 +48,7 @@ public class SubjectRepositoryImpl implements SubjectRepository {
 
     @Override
     public List<Subject> findByCode(String code) {
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.FIND_BY_CODE)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.FIND_BY_CODE)) {
             ps.setString(1, "%" + code + "%");
             ResultSet rs = ps.executeQuery();
             List<Subject> subjects = new ArrayList<>();
@@ -58,7 +65,7 @@ public class SubjectRepositoryImpl implements SubjectRepository {
 
     @Override
     public Subject findById(Long id) {
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.FIND_BY_ID)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.FIND_BY_ID)) {
             ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -76,7 +83,7 @@ public class SubjectRepositoryImpl implements SubjectRepository {
         int check = 0;
         Connection con = null;
 
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(isAddAction ? ISubjectQuery.ADD : ISubjectQuery.UPDATE, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(isAddAction ? SubjectQuery.ADD : SubjectQuery.UPDATE, java.sql.Statement.RETURN_GENERATED_KEYS)) {
             con = c;
             c.setAutoCommit(false);
 
@@ -122,7 +129,7 @@ public class SubjectRepositoryImpl implements SubjectRepository {
     public boolean deleteById(Long id) {
         int check = 0;
         Connection con = null;
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.DELETE)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.DELETE)) {
             con = c;
             c.setAutoCommit(false);
             ps.setLong(1, id);
@@ -145,7 +152,7 @@ public class SubjectRepositoryImpl implements SubjectRepository {
     public List<Subject> findAll(int itemsPerPage, int currentPage) {
         int offset = (currentPage - 1) * itemsPerPage;
 
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.FIND_ALL + " LIMIT ? OFFSET ?")) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.FIND_ALL + " LIMIT ? OFFSET ?")) {
 
             ps.setInt(1, itemsPerPage);
             ps.setInt(2, offset);
@@ -165,7 +172,7 @@ public class SubjectRepositoryImpl implements SubjectRepository {
 
     public List<Subject> findAll(int itemsPerPage, int currentPage, String sortField, String sortOrder) {
         int offset = (currentPage - 1) * itemsPerPage;
-        String query = ISubjectQuery.FIND_ALL + " ORDER BY " + sortField + " " + sortOrder + " LIMIT ? OFFSET ?";
+        String query = SubjectQuery.FIND_ALL + " ORDER BY " + sortField + " " + sortOrder + " LIMIT ? OFFSET ?";
 
         try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(query)) {
 
@@ -187,7 +194,7 @@ public class SubjectRepositoryImpl implements SubjectRepository {
 
     public List<Subject> findByName(String name, int itemsPerPage, int currentPage, String sortField, String sortOrder) {
         int offset = (currentPage - 1) * itemsPerPage;
-        String query = ISubjectQuery.FIND_BY_NAME + " ORDER BY " + sortField + " " + sortOrder + " LIMIT ? OFFSET ?";
+        String query = SubjectQuery.FIND_BY_NAME + " ORDER BY " + sortField + " " + sortOrder + " LIMIT ? OFFSET ?";
 
         try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(query)) {
             ps.setString(1, "%" + name + "%");
@@ -208,7 +215,7 @@ public class SubjectRepositoryImpl implements SubjectRepository {
     }
 
     public int countByName(String name) {
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.COUNT_BY_NAME)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.COUNT_BY_NAME)) {
             ps.setString(1, "%" + name + "%");
 
             ResultSet rs = ps.executeQuery();
@@ -222,7 +229,7 @@ public class SubjectRepositoryImpl implements SubjectRepository {
     }
 
     public int countAll() {
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.COUNT_ALL)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.COUNT_ALL)) {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -234,7 +241,7 @@ public class SubjectRepositoryImpl implements SubjectRepository {
     }
 
     public Subject findByNameExact(String name) {
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.FIND_BY_NAME_EXACT)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.FIND_BY_NAME_EXACT)) {
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -249,7 +256,7 @@ public class SubjectRepositoryImpl implements SubjectRepository {
     public void saveSubjectManager(Long userId, Long subjectId) {
         Connection con = null;
 
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.ADD_SUBJECT_MANAGER)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.ADD_SUBJECT_MANAGER)) {
             con = c;
             c.setAutoCommit(false);
             ps.setLong(1, userId);
@@ -270,7 +277,7 @@ public class SubjectRepositoryImpl implements SubjectRepository {
     }
 
     public void deleteSubjectManagers(Long subjectId) {
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.DELETE_SUBJECT_MANAGERS)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.DELETE_SUBJECT_MANAGERS)) {
             ps.setLong(1, subjectId);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -280,7 +287,7 @@ public class SubjectRepositoryImpl implements SubjectRepository {
 
     public void removeSubjectManagers(Long subjectId) {
         Connection con = null;
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ISubjectQuery.REMOVE_SUBJECT_MANAGERS)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.REMOVE_SUBJECT_MANAGERS)) {
             con = c;
             c.setAutoCommit(false);
             ps.setLong(1, subjectId);
@@ -297,5 +304,32 @@ public class SubjectRepositoryImpl implements SubjectRepository {
             e.printStackTrace(System.err);
         }
     }
-
+    public List<SubjectDto> getSubjectStatisticsByStudent(Long studentId) {
+        try (Connection c = DatabaseConnection.getConnection();
+                PreparedStatement ps = c.prepareStatement(SubjectQuery.GET_SUBJECT_STATISTICS)) {
+            ps.setLong(1, studentId);
+            ps.setLong(2, 1L);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                List<SubjectDto> subjectDtos = new ArrayList();
+                
+                while (rs.next()) {
+                    subjectDtos.add(SubjectDto.builder()
+                            .subjectId(rs.getLong("subject_id"))
+                            .subjectName(rs.getString("subject_name"))
+                            .subjectCode(rs.getString("subject_code"))
+                            .subjectCategory(categoryService.findById(rs.getLong("subject_category")))
+                            .totalStudents(rs.getLong("students_in_subject"))
+                            .build());
+                }
+                
+                return subjectDtos;
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(SubjectRepositoryImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Collections.emptyList();
+    }
 }

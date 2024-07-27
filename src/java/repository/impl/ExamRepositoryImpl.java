@@ -126,27 +126,32 @@ public class ExamRepositoryImpl implements ExamRepository {
 
     @Override
     public List<ExamDetailsDto> getExamStatisticsOfAStudent(Long studentId) {
-        try (Connection c = DatabaseConnection.getConnection();
-                PreparedStatement ps = c.prepareStatement(ExamQueryConstant.GET_EXAM_STATISTICS_OF_A_STUDENT)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ExamQueryConstant.GET_EXAM_STATISTICS_OF_A_STUDENT)) {
             ps.setLong(1, studentId);
-            
+            ps.setLong(2, studentId);
+
             try (ResultSet rs = ps.executeQuery()) {
                 List<ExamDetailsDto> examDetailsDtos = new ArrayList();
-                
+
                 while (rs.next()) {
-                    examDetailsDtos.add(new ExamDetailsDto(rs.getLong("exam_id"), 
-                            rs.getLong("question_id"), 
+                    examDetailsDtos.add(new ExamDetailsDto(
+                            rs.getLong("exam_id"),
+                            rs.getString("exam_title"),
+                            rs.getString("class_name"),
+                            rs.getLong("question_id"),
                             rs.getLong("user_id"),
                             rs.getLong("submitted_answer"),
-                            rs.getLong("correct_answer")));
+                            rs.getLong("correct_answer"),
+                            null
+                    ));
                 }
-                
+
                 return examDetailsDtos;
             }
         } catch (SQLException ex) {
             Logger.getLogger(ExamRepositoryImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return Collections.emptyList();
     }
 

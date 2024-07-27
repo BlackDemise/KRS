@@ -1,7 +1,7 @@
 package repository.impl;
 
 import constant.FlashcardQuery;
-import constant.ISubjectQuery;
+import constant.SubjectQuery;
 import entity.Flashcard;
 import entity.FlashcardAccess;
 import entity.FlashcardSet;
@@ -31,7 +31,7 @@ public class FlashcardRepositoryImpl implements FlashcardRepository {
         int check = 0;
         Connection con = null;
 
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(isAddAction ? FlashcardQuery.ADD : ISubjectQuery.UPDATE, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(isAddAction ? FlashcardQuery.ADD : SubjectQuery.UPDATE, java.sql.Statement.RETURN_GENERATED_KEYS)) {
             con = c;
             c.setAutoCommit(false);
 
@@ -75,7 +75,7 @@ public class FlashcardRepositoryImpl implements FlashcardRepository {
         int check = 0;
         Connection con = null;
 
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(isAddAction ? FlashcardQuery.ADD_FLASHCARD_SET : ISubjectQuery.UPDATE, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(isAddAction ? FlashcardQuery.ADD_FLASHCARD_SET : SubjectQuery.UPDATE, java.sql.Statement.RETURN_GENERATED_KEYS)) {
             con = c;
             c.setAutoCommit(false);
 

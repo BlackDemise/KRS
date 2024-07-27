@@ -10,6 +10,7 @@ import static constant.EUserRole.ROLE_STUDENT;
 import static constant.EUserRole.ROLE_TEACHER;
 import constant.IGoogleConnection;
 import constant.UserQueryConstant;
+import dto.ExamStatistics;
 import dto.GoogleUserDto;
 import entity.Token;
 import entity.User;
@@ -27,6 +28,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
@@ -47,6 +49,8 @@ import org.apache.http.client.fluent.Request;
 import org.mindrot.jbcrypt.BCrypt;
 import repository.impl.TokenRepository;
 import repository.impl.UserRepositoryImpl;
+import service.impl.ClassServiceImpl;
+import service.impl.ExamServiceImpl;
 import service.impl.UserServiceImpl;
 import util.SendEmail;
 import util.UserValidation;
@@ -62,6 +66,8 @@ public class MainServlet extends HttpServlet {
     private static final long EMAIL_INTERVAL = 5 * 60 * 1000; // 5 phút tính bằng milliseconds
 
     private final UserServiceImpl userService = UserServiceImpl.getInstance();
+    private final ClassServiceImpl classService = ClassServiceImpl.getInstance();
+    private final ExamServiceImpl examService = ExamServiceImpl.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -105,6 +111,23 @@ public class MainServlet extends HttpServlet {
             }
             case "/dashboard" -> {
                 try {
+                    HttpSession session = request.getSession(false);
+                    User currentUser = (User) session.getAttribute("user");
+                    String userRole = currentUser.getRole().getTitle().getUserRole();
+                    switch (userRole) {
+                        case "Student" -> {
+                            Long studentId = currentUser.getId();
+                            int totalClasses = classService.getTotalClasses(studentId);
+                            int totalExams = examService.getTotalExamsByStudent(studentId);
+                            int totalPractices = examService.getTotalPracticesByStudent(studentId);
+                            Map<Long, ExamStatistics> examStatisticsMap = examService.getExamStatisticsOfAStudent(studentId);
+                            request.setAttribute("currentSite", "/dashboard");
+                            request.setAttribute("totalClasses", totalClasses);
+                            request.setAttribute("totalExams", totalExams);
+                            request.setAttribute("totalPractices", totalPractices);
+                            request.setAttribute("examStatistics", examStatisticsMap);
+                        }
+                    }
                     request.setAttribute("currentSite", "/dashboard");
                     request.getRequestDispatcher("/main/dashboard.jsp").forward(request, response);
                 } catch (ServletException | IOException ex) {

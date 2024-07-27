@@ -1,8 +1,7 @@
 package controller.student;
 
-import entity.Classroom;
-import entity.Lesson;
-import entity.Material;
+import dto.ClassDto;
+import dto.SubjectDto;
 import entity.User;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -17,13 +16,15 @@ import java.util.logging.Logger;
 import service.impl.ClassServiceImpl;
 import service.impl.LessonServiceImpl;
 import service.impl.MaterialServiceImpl;
+import service.impl.SubjectServiceImpl;
 
-@WebServlet(name = "StudentServlet", urlPatterns = {"/my-classes", "/my-classes/details", "/my-classes/lesson", "/my-classes/flashcard"})
+@WebServlet(name = "StudentServlet", urlPatterns = {"/my-subjects", "/my-subjects/class"})
 public class StudentServlet extends HttpServlet {
 
     private final ClassServiceImpl classService = ClassServiceImpl.getInstance();
     private final LessonServiceImpl lessonService = LessonServiceImpl.getInstance();
     private final MaterialServiceImpl materialService = MaterialServiceImpl.getInstance();
+    private final SubjectServiceImpl subjectService = SubjectServiceImpl.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -32,78 +33,45 @@ public class StudentServlet extends HttpServlet {
         User current = (User) session.getAttribute("user");
         Long studentId = current.getId();
         switch (ACTION) {
-            case "/my-classes" -> {
-                List<Classroom> classrooms = classService.findByStudent(studentId);
+            case "/my-subjects" -> {
+                List<SubjectDto> subjectDtos = subjectService.getSubjectStatisticsByStudent(studentId);
 
-                request.setAttribute("currentSite", "/my-classes");
-                request.setAttribute("classList", classrooms);
+                request.setAttribute("currentSite", "/my-subjects");
+                request.setAttribute("subjectDtos", subjectDtos);
                 try {
-                    request.getRequestDispatcher("/student/my-classes.jsp").forward(request, response);
+                    request.getRequestDispatcher("/student/my-subjects.jsp").forward(request, response);
                 } catch (ServletException | IOException ex) {
                     Logger.getLogger(StudentServlet.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            case "/my-classes/details" -> {
-                Long classId = Long.valueOf(request.getParameter("classId"));
+            case "/my-subjects/class" -> {
                 Long subjectId = Long.valueOf(request.getParameter("subjectId"));
+                if (subjectId != null) {
+                    try {
+                        request.getRequestDispatcher("/student/class-details.jsp").forward(request, response);
+                    } catch (ServletException | IOException ex) {
+                        Logger.getLogger(StudentServlet.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    List<ClassDto> classDtos = classService.getClassStatisticsByStudentAndSubject(subjectId, studentId);
 
-                List<Classroom> classrooms = classService.findByStudent(studentId);
-                Classroom currentClass = classService.findById(classId);
-                request.setAttribute("classList", classrooms);
-
-                List<Lesson> lessons = lessonService.findBySubject(subjectId);
-                request.setAttribute("currentSite", "/my-classes");
-                request.setAttribute("lessonList", lessons);
-                request.setAttribute("subjectId", subjectId);
-                request.setAttribute("classroom", currentClass);
-
-                try {
-                    request.getRequestDispatcher("/student/class-details.jsp").forward(request, response);
-                } catch (ServletException | IOException ex) {
-                    Logger.getLogger(StudentServlet.class.getName()).log(Level.SEVERE, null, ex);
+                    request.setAttribute("currentSite", "/my-subjects");
+                    request.setAttribute("classDtos", classDtos);
+                    try {
+                        request.getRequestDispatcher("/student/my-classes.jsp").forward(request, response);
+                    } catch (ServletException | IOException ex) {
+                        Logger.getLogger(StudentServlet.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
-            case "/my-classes/lesson" -> {
-                Long lessonId = Long.valueOf(request.getParameter("lessonId"));
-                Long classId = Long.valueOf(request.getParameter("classId"));
-                Long subjectId = Long.valueOf(request.getParameter("subjectId"));
 
-                List<Classroom> classrooms = classService.findByStudent(studentId);
-
-                request.setAttribute("currentSite", "/my-classes");
-                request.setAttribute("classList", classrooms);
-
-                List<Lesson> lessons = lessonService.findBySubject(subjectId);
-                request.setAttribute("lessonList", lessons);
-
-                Lesson currentLesson = lessonService.findById(lessonId);
-                request.setAttribute("lesson", currentLesson);
-
-                Classroom currentClass = classService.findById(classId);
-                request.setAttribute("classroom", currentClass);
-
-                List<Material> materials = materialService.findByLesson(lessonId);
-                System.out.println(materials.size());
-                request.setAttribute("materials", materials);
-
-                request.setAttribute("currentSite", "/my-classes");
-                request.setAttribute("classroom", currentClass);
-                request.setAttribute("lessonId", lessonId);
-                request.setAttribute("subjectId", subjectId);
-                try {
-                    request.getRequestDispatcher("/student/lesson-details.jsp").forward(request, response);
-                } catch (ServletException | IOException ex) {
-                    Logger.getLogger(StudentServlet.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-            }
-            case "/my-classes/flashcard" -> {
-                try {
-                    request.getRequestDispatcher("/student/flashcard.jsp").forward(request, response);
-                } catch (ServletException | IOException ex) {
-                    Logger.getLogger(StudentServlet.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+//            case "/my-classes/flashcard" -> {
+//                try {
+//                    request.getRequestDispatcher("/student/flashcard.jsp").forward(request, response);
+//                } catch (ServletException | IOException ex) {
+//                    Logger.getLogger(StudentServlet.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
         }
     }
 }

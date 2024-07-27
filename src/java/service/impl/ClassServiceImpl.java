@@ -4,6 +4,7 @@
  */
 package service.impl;
 
+import dto.ClassDto;
 import dto.StudentDto;
 import entity.Classroom;
 import entity.User;
@@ -94,5 +95,9 @@ public class ClassServiceImpl implements ClassService {
 
     public List<Classroom> findByStudent(Long studentId) {
         return classRepository.findByStudent(studentId);
+    }
+    
+    public List<ClassDto> getClassStatisticsByStudentAndSubject(Long studentId, Long subjectId) {
+        return classRepository.getClassStatisticsByStudentAndSubject(subjectId, studentId);
     }
 }

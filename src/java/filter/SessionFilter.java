@@ -54,7 +54,7 @@ public class SessionFilter implements Filter {
                             || requestURI.contains("/flashcard/add-flashcard");
                 }
                 case ROLE_STUDENT -> {
-                    isAuthenticated = requestURI.contains("/my-classes") || requestURI.endsWith("/dashboard")
+                    isAuthenticated = requestURI.contains("/my-subjects") || requestURI.endsWith("/dashboard")
                             || requestURI.endsWith("/user/profile") || requestURI.endsWith("/user/change-password")
                             && !requestURI.contains("/user/add") && !requestURI.contains("/user/update")
                             && !requestURI.contains("/user/toggle") && !requestURI.contains("/subject/add")
