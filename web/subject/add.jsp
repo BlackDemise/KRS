@@ -122,18 +122,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <div class="col-md-12 mt-1 mb-4">
-                                            <label class="form-label">Manager*</label>
-                                            <select class="form-select" name="managerIds" multiple aria-label="Multiple select example">
-                                                <c:forEach var="mana" items="${managers}">
-                                                    <option value="${mana.id}">${mana.fullName}</option>
-                                                </c:forEach>
-                                            </select>
-                                            <c:if test="${not empty managerError}">
-                                                <small class="text-danger">${managerError}</small>
-                                            </c:if>
-                                        </div>
                                     </div>
                                     <button type="submit" class="btn btn-primary">Add Subject</button>
                                     <button type="reset" class="btn btn-secondary">Cancel</button>

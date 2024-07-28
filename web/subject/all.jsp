@@ -188,17 +188,6 @@
                                                                         </div>
                                                                     </div><!--end col-->
 
-                                                                    <div class="col-md-12">
-                                                                        <label class="form-label">Managers</label>
-                                                                        <select name="managerIds" id="managerIds${s.subject.id}" class="form-control" multiple required>
-                                                                            <c:forEach var="manager" items="${managers}">
-                                                                                <option value="${manager.id}" <c:forEach var="m" items="${s.managers}">
-                                                                                            <c:if test="${m.id == manager.id}">selected</c:if>
-                                                                                        </c:forEach>>${manager.fullName}</option>
-                                                                            </c:forEach>
-                                                                        </select>
-                                                                    </div><!--end col-->
-
                                                                     <div class="col-sm-12">
                                                                         <input type="hidden" name="id" value="${s.subject.id}">
                                                                         <c:if test="${sessionScope.user.role.title.userRole == 'Administrator'}">

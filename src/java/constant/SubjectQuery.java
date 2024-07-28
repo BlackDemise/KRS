@@ -45,7 +45,8 @@ public final class SubjectQuery {
                            WHERE name LIKE ?
                            """;
 
-    public static final String UPDATE = "UPDATE subject SET name = ?, code = ?, description = ?, note = ?, status = ?, category_id = ? WHERE id = ?";
+    public static final String UPDATE = "UPDATE subject SET name = ?, code = ?, description = ?, note = ?, status = ?, category_id = ?,"
+            + "created_at = ?, last_modified_at = ?, created_by = ?, last_modified_by = ?  WHERE id = ?";
 
     public static final String DELETE = """
                     DELETE FROM subject

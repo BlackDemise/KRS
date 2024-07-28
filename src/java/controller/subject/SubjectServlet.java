@@ -111,10 +111,11 @@ public class SubjectServlet extends HttpServlet {
             List<User> managersList = userService.findManagerById(s.getId());
             listManagers.add(new ManagerDto(s, managersList));
         }
-
+        List<Category> categories = categoryService.findAll();
         int start = (currentPage - 1) * itemsPerPage + 1;
         int end = Math.min(currentPage * itemsPerPage, totalSubjects);
 
+        request.setAttribute("categories", categories);
         request.setAttribute("subjects", listManagers);
         request.setAttribute("currentPage", currentPage);
         request.setAttribute("totalPages", totalPages);
@@ -129,9 +130,9 @@ public class SubjectServlet extends HttpServlet {
 
     private void prepareAddSubject(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         List<Category> categories = categoryService.findAll();
-        List<User> managers = userService.findByRole(3L);
-        request.setAttribute("managers", managers);
+        List<User> managers = userService.findByRole(2L);
         request.setAttribute("categories", categories);
+        request.setAttribute("managers", managers);
         request.getRequestDispatcher("/subject/add.jsp").forward(request, response);
     }
 
@@ -194,10 +195,6 @@ public class SubjectServlet extends HttpServlet {
         Category category = categoryService.findById(categoryId);
         Subject subject = new Subject(null, name, code, description, note, status, category, LocalDate.now(), LocalDate.now(), createdById, createdById);
         Subject savedSubject = subjectService.save(subject);
-//        Long subjectId = savedSubject.getId();
-//        for (String managerId : managerIds) {
-//            subjectService.saveSubjectManager(Long.valueOf(managerId), subjectId);
-//        }
         if (savedSubject == null) {
             request.setAttribute("errorMessage", "Failed to add subject. Please try again.");
             request.getRequestDispatcher("/subject/add.jsp").include(request, response);
@@ -212,8 +209,9 @@ public class SubjectServlet extends HttpServlet {
         String subjectCode = request.getParameter("codeSubject");
         Long categoryId = Long.valueOf(request.getParameter("categorySubject"));
         String statusParam = request.getParameter("statusSubject");
+        String subjectDescription = request.getParameter("descriptionSubject");
+        String subjectNote = request.getParameter("noteSubject");
         ESubjectStatus status = null;
-        String[] managerIds = request.getParameterValues("managerIds");
 
         boolean hasErrors = false;
 
@@ -221,6 +219,8 @@ public class SubjectServlet extends HttpServlet {
         request.setAttribute("codeValue", subjectCode);
         request.setAttribute("categoryValue", categoryId);
         request.setAttribute("statusValue", statusParam);
+        request.setAttribute("descriptionValue", subjectDescription);
+        request.setAttribute("noteValue", subjectNote);
 
         if (subjectName == null || subjectName.isEmpty()) {
             request.setAttribute("nameError", "Name is required.");
@@ -248,7 +248,7 @@ public class SubjectServlet extends HttpServlet {
         if (hasErrors) {
             List<Category> categories = categoryService.findAll();
             request.setAttribute("categories", categories);
-            request.getRequestDispatcher("/subject.jsp").include(request, response);
+            request.getRequestDispatcher("/subject/all.jsp").include(request, response);
             return;
         }
 
@@ -257,14 +257,10 @@ public class SubjectServlet extends HttpServlet {
         Long createdById = currentUser.getId();
 
         Category category = categoryService.findById(categoryId);
-        Subject subject = new Subject(subjectId, subjectName, subjectCode, "", "", status, category, LocalDate.now(), LocalDate.now(), createdById, createdById);
+        Subject subject = new Subject(subjectId, subjectName, subjectCode, subjectDescription, subjectNote, status, category, LocalDate.now(), LocalDate.now(), createdById, createdById);
         Subject updatedSubject = subjectService.save(subject);
 
         if (updatedSubject != null) {
-//            subjectService.removeSubjectManagers(subjectId); // Remove existing managers
-//            for (String managerId : managerIds) {
-//                subjectService.saveSubjectManager(Long.valueOf(managerId), subjectId); // Add updated managers
-//            }
             response.sendRedirect("/subject?updated=successful");
         } else {
             response.sendRedirect("/subject?updated=failed");
