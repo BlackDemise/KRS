@@ -3,7 +3,6 @@ package repository.impl;
 import entity.Subject;
 import constant.SubjectQuery;
 import dto.SubjectDto;
-import entity.Category;
 import java.util.List;
 import mysql.DatabaseConnection;
 import repository.SubjectRepository;
@@ -27,9 +26,9 @@ public class SubjectRepositoryImpl implements SubjectRepository {
     public static SubjectRepositoryImpl getInstance() {
         return instance;
     }
-    
+
     private final CategoryServiceImpl categoryService = CategoryServiceImpl.getInstance();
-    
+
     @Override
     public List<Subject> findAll() {
         try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.FIND_ALL); ResultSet rs = ps.executeQuery()) {
@@ -253,13 +252,13 @@ public class SubjectRepositoryImpl implements SubjectRepository {
         return null;
     }
 
-    public void saveSubjectManager(Long userId, Long subjectId) {
+    public void saveSubjectManager(String managerEmail, Long subjectId) {
         Connection con = null;
 
         try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.ADD_SUBJECT_MANAGER)) {
             con = c;
             c.setAutoCommit(false);
-            ps.setLong(1, userId);
+            ps.setString(1, managerEmail);
             ps.setLong(2, subjectId);
 
             ps.executeUpdate();
@@ -285,12 +284,13 @@ public class SubjectRepositoryImpl implements SubjectRepository {
         }
     }
 
-    public void removeSubjectManagers(Long subjectId) {
+    public void removeSubjectManagers(String managerEmail, Long subjectId) {
         Connection con = null;
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.REMOVE_SUBJECT_MANAGERS)) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.DELETE_SUBJECT_MANAGERS)) {
             con = c;
             c.setAutoCommit(false);
-            ps.setLong(1, subjectId);
+            ps.setString(1, managerEmail);
+            ps.setLong(2, subjectId);
             ps.executeUpdate();
             c.commit();
         } catch (SQLException e) {
@@ -304,15 +304,16 @@ public class SubjectRepositoryImpl implements SubjectRepository {
             e.printStackTrace(System.err);
         }
     }
-    public List<SubjectDto> getSubjectStatisticsByStudent(Long studentId) {
-        try (Connection c = DatabaseConnection.getConnection();
-                PreparedStatement ps = c.prepareStatement(SubjectQuery.GET_SUBJECT_STATISTICS)) {
-            ps.setLong(1, studentId);
-            ps.setLong(2, 1L);
-            
+
+    public List<SubjectDto> getSubjectStatisticsByStudent(Long studentId, String searchQuery) {
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(SubjectQuery.GET_SUBJECT_STATISTICS)) {
+            ps.setString(1, searchQuery);
+            ps.setLong(2, studentId);
+            ps.setLong(3, 1L);
+
             try (ResultSet rs = ps.executeQuery()) {
                 List<SubjectDto> subjectDtos = new ArrayList();
-                
+
                 while (rs.next()) {
                     subjectDtos.add(SubjectDto.builder()
                             .subjectId(rs.getLong("subject_id"))
@@ -322,14 +323,14 @@ public class SubjectRepositoryImpl implements SubjectRepository {
                             .totalStudents(rs.getLong("students_in_subject"))
                             .build());
                 }
-                
+
                 return subjectDtos;
             }
-            
+
         } catch (SQLException ex) {
             Logger.getLogger(SubjectRepositoryImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return Collections.emptyList();
     }
 }

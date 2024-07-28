@@ -245,10 +245,26 @@ public class ClassRepositoryImpl implements ClassRepository {
 //            e.printStackTrace(System.err);
 //        }
 //    }
-    public void clearStudents(Long classId) {
-        String sql = "DELETE FROM student_class WHERE class_id = ?";
+    
+    public void addStudentToClass(String studentEmail, Long classroom) {
+
+        String sql = "INSERT INTO student_class (user_id, class_id)\n"
+                + "VALUES((SELECT id FROM user where email like ?), ?) ";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, classId);
+            ps.setString(1, studentEmail);
+            ps.setLong(2, classroom);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+        }
+    }
+
+    public void deleteStudents(String studentEmail, Long classroom) {
+        String sql = "delete from student_class\n"
+                + "where user_id = (select id from user where email like ?) and class_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, studentEmail);
+            ps.setLong(2, classroom);
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace(System.err);
@@ -388,18 +404,6 @@ public class ClassRepositoryImpl implements ClassRepository {
         }
 
         return Collections.emptyList();
-    }
-
-    public void addStudentToClass(User student, Classroom classroom) {
-
-        String sql = "INSERT INTO student_class (user_id, class_id) VALUES (?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, student.getId());
-            ps.setLong(2, classroom.getId());
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace(System.err);
-        }
     }
 
     public void save(User user) {

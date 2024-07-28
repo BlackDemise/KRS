@@ -110,8 +110,8 @@
                                                     <td class="p-3">${s.subject.category.name}</td>
                                                     <td class="p-3">${s.subject.status.subjectStatus}</td>
                                                     <td class="text-start p-3">
-                                                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#managerList${s.subject.id}">
-                                                            View Managers
+                                                        <button type="button" class="btn btn-icon btn-pills btn-soft-primary" data-bs-toggle="modal" data-bs-target="#managerList${s.subject.id}">
+                                                            <i class="uil uil-eye"></i>
                                                         </button>
 
                                                     </td>
@@ -129,7 +129,6 @@
                                                 </tr>
                                                 <!-- START MODAL -->
                                                 <!-- Update Details Modal -->
-
                                             <div class="modal fade" id="updateSubjectProfile${s.subject.id}" tabindex="-1" aria-labelledby="updateSubjectProfileLabel${s.subject.id}" aria-hidden="true">
                                                 <div class="modal-dialog modal-xl modal-dialog-centered">
                                                     <div class="modal-content">
@@ -138,7 +137,7 @@
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body p-3 pt-4">
-                                                            <form action="/subject/update" method="post">
+                                                            <form action="${pageContext.request.contextPath}/subject/update" method="post">
                                                                 <div class="row">
                                                                     <div class="col-md-6">
                                                                         <div class="mb-3">
@@ -157,7 +156,11 @@
                                                                     <div class="col-md-6">
                                                                         <div class="mb-3">
                                                                             <label class="form-label">Category</label>
-                                                                            <input name="categorySubject" id="categorySubject" class="form-control" value="${s.subject.category.name}" required>
+                                                                            <select name="categorySubject" id="categorySubject" class="form-control" required>
+                                                                                <c:forEach var="category" items="${categories}">
+                                                                                    <option value="${category.id}" <c:if test="${s.subject.category.id == category.id}">selected</c:if>>${category.name}</option>
+                                                                                </c:forEach>
+                                                                            </select>
                                                                         </div>
                                                                     </div><!--end col-->
 
@@ -171,16 +174,38 @@
                                                                         </div>
                                                                     </div><!--end col-->
 
+                                                                    <div class="col-md-12">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label">Description</label>
+                                                                            <textarea name="descriptionSubject" id="descriptionSubject" class="form-control">${s.subject.description}</textarea>
+                                                                        </div>
+                                                                    </div><!--end col-->
 
-                                                                    <div class="row">
-                                                                        <div class="col-sm-12">
-                                                                            <input type="hidden" name="id" value="${s.subject.id}">
-                                                                            <c:if test="${sessionScope.user.role.title.userRole == 'Administrator'}">
-                                                                                <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
-                                                                            </c:if>
-                                                                        </div><!--end col-->
-                                                                    </div><!--end row-->
-                                                                </div>
+                                                                    <div class="col-md-12">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label">Note</label>
+                                                                            <textarea name="noteSubject" id="noteSubject" class="form-control">${s.subject.note}</textarea>
+                                                                        </div>
+                                                                    </div><!--end col-->
+
+                                                                    <div class="col-md-12">
+                                                                        <label class="form-label">Managers</label>
+                                                                        <select name="managerIds" id="managerIds${s.subject.id}" class="form-control" multiple required>
+                                                                            <c:forEach var="manager" items="${managers}">
+                                                                                <option value="${manager.id}" <c:forEach var="m" items="${s.managers}">
+                                                                                            <c:if test="${m.id == manager.id}">selected</c:if>
+                                                                                        </c:forEach>>${manager.fullName}</option>
+                                                                            </c:forEach>
+                                                                        </select>
+                                                                    </div><!--end col-->
+
+                                                                    <div class="col-sm-12">
+                                                                        <input type="hidden" name="id" value="${s.subject.id}">
+                                                                        <c:if test="${sessionScope.user.role.title.userRole == 'Administrator'}">
+                                                                            <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+                                                                        </c:if>
+                                                                    </div><!--end col-->
+                                                                </div><!--end row-->
                                                             </form>
                                                         </div>
                                                     </div>
@@ -244,16 +269,32 @@
             </main>
         </div>
 
+        <!-- Start Modal for Managers -->
         <c:forEach var="s" items="${subjects}">
             <!-- Modal for Managers -->
             <div class="modal fade" id="managerList${s.subject.id}" tabindex="-1" aria-labelledby="managerListLabel${s.subject.id}" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="managerListLabel${s.subject.id}">Managers for ${s.subject.name}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
+                            <!-- Import from Excel Form -->
+                            <form action="${pageContext.request.contextPath}/subject/uploadExcel" method="post" enctype="multipart/form-data" class="mb-4">
+                                <input type="hidden" name="subjectId" value="${s.subject.id}">
+                                <div class="form-group">
+                                    <label for="fileUploadExcel">Upload Excel File</label>
+                                    <input type="file" id="fileUploadExcel" name="excelFile" class="form-control" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-3">Upload</button>
+                            </form>
+
+                            <!-- Display success or failure message -->
+                            <c:if test="${not empty message}">
+                                <div class="alert alert-info">${message}</div>
+                            </c:if>
+                            <hr>
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
@@ -282,6 +323,7 @@
                 </div>
             </div>
         </c:forEach>
+        <!-- End Modal for Managers -->
 
         <!-- Toast notifications -->
         <c:if test="${added == 'successful'}">

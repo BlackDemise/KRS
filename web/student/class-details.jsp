@@ -61,44 +61,65 @@
                                     <div class="form-floating w-100 me-2">
                                         <select class="form-select" id="floatingSelect" aria-label="Floating label select example" onchange="redirectToDetails(this)">
                                             <c:forEach var="c" items="${classList}">
-                                                <option value="${c.id},${c.subject.id}" ${classroom.id == c.id ? 'selected' : ''}>${c.title}</option>
+                                                <option value="${c.id},${subjectId}" ${classroom != null && classroom.id == c.id ? 'selected' : ''}>${c.title}</option>
                                             </c:forEach>
                                         </select>
-
                                         <label for="floatingSelect">Current class</label>
                                     </div>
-                                    <div class="form-floating w-100 ms-2">
-                                        <select class="form-select" id="floatingSelect" aria-label="Floating label select example" onchange='redirectToChapter(this)'>
-                                            <option selected disabled value="">Choose the chapter</option>
-                                            <c:forEach var="l" items="${lessonList}">
-                                                <option value="${classroom.id},${l.subject.id},${l.lessonId}">${l.name}</option>
-                                            </c:forEach>
-                                        </select>
-                                        <label for="floatingSelect">Jump to</label>
-                                    </div>
+
+
                                 </div>
                             </div>
                         </div>
 
+                        <div class="row mt-2">
+                            <h5>Teacher: ${classroom.teacher.fullName}</h5>
+                        </div>
+
                         <div class="row">
-                            <h5>Teacher: </h5>
-                            <c:forEach var="l" items="${lessonList}">
-                                <div class="col-6 my-3">
-                                    <div class="card" style="height: 175px">
-                                        <div class="card-body d-flex flex-column justify-content-between">
-                                            <div>
-                                                <p>${l.name}</p>
-                                                <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
-                                                    <div class="progress-bar" style="width: 50%"></div>
+                            <div class="col-12">
+                                <h5>Exams</h5>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Title</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach var="e" items="${exams}" varStatus="status">
+                                            <tr>
+                                                <td>${status.index + 1}</td>
+                                                <td>${e.key.title}</td>
+                                                <td>
+                                                    <a href="/my-subjects/exam?id=${e.key.id}" class="btn btn-primary">Take</a>
+                                                    <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">Details</button>
+                                                </td>
+                                            </tr>
+                                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-sm">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h1 class="modal-title fs-5" id="exampleModalLabel">${e.key.title}</h1>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Exam title: ${e.key.title}</p>
+                                                        <p>Duration: ${e.key.duration} minutes</p>
+                                                        <p>Creator: ${e.key.createdBy.fullName}</p>
+                                                        <p>Total questions: ${e.value}</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="text-end">
-                                                <a href="/my-classes/lesson?lessonId=${l.lessonId}&classId=${classroom.id}&subjectId=${l.subject.id}" class="btn btn-primary">Details</a>
-                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </c:forEach>
+                                    </c:forEach>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div><!--end container-->
@@ -136,12 +157,20 @@
         <!-- Main Js -->
         <script src="../assets/js/app.js"></script>
         <script>
+                                        const myModal = document.getElementById('myModal');
+                                        const myInput = document.getElementById('myInput');
+
+                                        myModal.addEventListener('shown.bs.modal', () => {
+                                            myInput.focus();
+                                        });
                                         function redirectToDetails(selectElement) {
                                             const selectedValue = selectElement.value;
                                             const [classId, subjectId] = selectedValue.split(',');
-                                            const url = '/my-classes/details?classId=' + classId + '&subjectId=' + subjectId;
+                                            const url = '/my-subjects/class?subjectId=' + subjectId + '&classId=' + classId;
                                             window.location.href = url;
                                         }
+
+
                                         function redirectToChapter(selectElement) {
                                             const selectedValue = selectElement.value;
                                             const [classId, subjectId, lessonId] = selectedValue.split(',');

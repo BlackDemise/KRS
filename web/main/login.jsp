@@ -106,7 +106,7 @@
 
                                         <div class="col-12 text-center">
                                             <p class="mb-0 mt-3"><small class="text-dark me-2">Don't have an account ?</small> <a href="/register" class="text-dark fw-bold">Sign Up</a></p>
-                                            <p class="mt-2 text-danger-emphasis" id="error">${error}</p>
+                                            <p class="mt-2 text-danger" id="error">${error}</p>
                                         </div>
                                     </div>
                                 </form>

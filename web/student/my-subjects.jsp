@@ -52,31 +52,45 @@
                             <div class="d-flex justify-content-between align-items-center w-100">
                                 <h5 class="mb-0">My Subjects</h5>
                                 <div class="d-flex w-50 justify-content-end">
-                                    <form class="d-flex w-100" action="" method="get">
-                                        <input class="form-control me-2" type="search" placeholder="Enter subject code..." aria-label="Search">
+                                    <form class="d-flex w-100" action="/my-subjects" method="get">
+                                        <input class="form-control me-2" type="search" placeholder="Enter subject code..." aria-label="Search" name="searchQuery" value="${searchQuery}">
                                         <button class="btn btn-primary" type="submit">Search</button>
                                     </form>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="row">
-                            <c:forEach var="sd" items="${subjectDtos}">
-                                <div class="col-6 my-3">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <p>${sd.subjectName}</p>
-                                            <p>${sd.subjectCode}</p>
-                                            <p>${sd.subjectCategory.name}</p>
-                                            <p>${sd.totalStudents}</p>
-                                            <a href="/my-subjects/class?subjectId=${sd.subjectId}" class="btn btn-primary">Go to courses</a>
-                                        </div>
-                                    </div>
+                        <c:choose>
+                            <c:when test="${subjectDtos.size() == 0}">
+                                <div class="d-flex justify-content-center align-items-center" style="height: 50vh;">
+                                    <p>No subjects found with the keyword <strong>${param.searchQuery}</strong>.</p>
                                 </div>
-                            </c:forEach>
-                        </div>
+                            </c:when>
+                            <c:otherwise>
+                                <c:if test="${param.searchQuery != null && !param.searchQuery.isEmpty()}">
+                                    <p>Found ${subjectDtos.size()} subjects with keyword ${param.searchQuery}</p>
+                                </c:if>
+                                <div class="row">
+                                    <c:forEach var="sd" items="${subjectDtos}">
+                                        <div class="col-6 my-3">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <p><b>Name:</b> ${sd.subjectName}</p>
+                                                    <p><b>Code:</b> ${sd.subjectCode}</p>
+                                                    <p><b>Category:</b> ${sd.subjectCategory.name}</p>
+                                                    <p><b>Total Students:</b> ${sd.totalStudents}</p>
+                                                    <div class="d-flex justify-content-end">
+                                                        <a href="/my-subjects/class?subjectId=${sd.subjectId}" class="btn btn-primary">Go to courses</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div><!--end container-->
+
 
                 <!-- Footer Start -->
                 <footer class="bg-white shadow py-3">

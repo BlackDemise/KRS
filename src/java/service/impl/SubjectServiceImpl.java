@@ -19,8 +19,8 @@ public class SubjectServiceImpl implements SubjectService {
         return instance;
     }
 
-    public void saveSubjectManager(Long userId, Long subjectId) {
-        subjectRepository.saveSubjectManager(userId, subjectId);
+    public void saveSubjectManager(String managerEmail, Long subjectId) {
+        subjectRepository.saveSubjectManager(managerEmail, subjectId);
     }
 
     public Subject save(Subject subject) {
@@ -47,22 +47,15 @@ public class SubjectServiceImpl implements SubjectService {
         return subjectRepository.countAll();
     }
 
-    public void updateSubjectManagers(Long subjectId, String[] managerIds) {
-        subjectRepository.deleteSubjectManagers(subjectId);
-        for (String managerId : managerIds) {
-            subjectRepository.saveSubjectManager(Long.valueOf(managerId), subjectId);
-        }
-    }
-
-    public void removeSubjectManagers(Long subjectId) {
-        subjectRepository.removeSubjectManagers(subjectId);
+    public void removeSubjectManagers(String managerEmail, Long subjectId) {
+        subjectRepository.removeSubjectManagers(managerEmail, subjectId);
     }
 
     public List<Subject> findAll() {
         return subjectRepository.findAll();
     }
 
-    public List<SubjectDto> getSubjectStatisticsByStudent(Long studentId) {
-        return subjectRepository.getSubjectStatisticsByStudent(studentId);
+    public List<SubjectDto> getSubjectStatisticsByStudent(Long studentId, String searchQuery) {
+        return subjectRepository.getSubjectStatisticsByStudent(studentId, searchQuery);
     }
 }

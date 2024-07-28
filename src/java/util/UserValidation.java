@@ -42,7 +42,6 @@ public class UserValidation {
         LocalDate currentTime = LocalDate.now();
         int currentYear = currentTime.getYear();
         int dobYear = dob.getYear();
-        // web for FPTU ecosystem, so at least 18 years old
         return currentYear - dobYear >= 18;
     }
 
@@ -50,4 +49,9 @@ public class UserValidation {
         return newPass.equals(confirmPass);
     }
 
+    public static boolean isPasswordStrong(String password) {
+        String passwordRegex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,40}$";
+        Pattern pattern = Pattern.compile(passwordRegex);
+        return pattern.matcher(password).matches();
+    }
 }

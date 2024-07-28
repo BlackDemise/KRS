@@ -77,7 +77,7 @@
             .error-message {
                 color: red;
                 font-weight: bold;
-                margin-left: 10px;
+
             }
             .back-to-home {
                 position: fixed;
@@ -122,7 +122,15 @@
                                             <div class="mb-2">
                                                 <label class="form-label">Full Name <span class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" placeholder="Full Name" name="fullName" value="${fullName != null ? fullName : ''}">
-                                                <span class="error-message">${error_fullName}</span>
+
+                                                <c:choose>
+                                                    <c:when test="${empty fullName}">
+                                                        <span class="error-message">${error_empty}</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="error-message">${error_fullName}</span>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </div>
                                         </div>
 

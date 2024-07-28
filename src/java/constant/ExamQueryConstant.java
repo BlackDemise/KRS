@@ -11,15 +11,19 @@ public final class ExamQueryConstant {
                   join answer a on q.question_id = a.question_id
                   """;
 
-    public static final String FIND_BY_ID = FIND + """
-                               where e.exam_id = ?
-                               """;
+    public static final String FIND_BY_ID = """
+                                            select *
+                                            from exam
+                                            where exam_id = ?
+                                            """;
 
     public static final String FIND_BY_CLASS_ID = """
-                                     select e.exam_id, e.title, e.duration, c.class_id
+                                     select e.*, count(eq.question_id) as total_questions
                                      from exam e
                                      join class c on e.class_id = c.class_id
+                                     join exam_question eq on e.exam_id = eq.exam_id
                                      where c.class_id = ?
+                                     group by e.exam_id
                                      """;
     
     public static final String GET_TOTAL_QUESTION = """
@@ -72,4 +76,20 @@ public final class ExamQueryConstant {
                                                                   ORDER BY 
                                                                     eq.exam_id;
                                                                   """;
+    
+    public static final String GET_ALL_QUESTIONS_IN_AN_EXAM = """
+                                                              select 
+                                                                q.question_id, 
+                                                                q.content, 
+                                                                a.answer, 
+                                                                a.answer_id, 
+                                                                a.is_correct 
+                                                              from 
+                                                                exam e 
+                                                                join exam_question eq on e.exam_id = eq.exam_id 
+                                                                join question q on q.question_id = eq.question_id 
+                                                                join answer a on a.question_id = q.question_id 
+                                                              where 
+                                                                e.exam_id = ?
+                                                              """;
 }

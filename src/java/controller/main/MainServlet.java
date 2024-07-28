@@ -2,12 +2,6 @@ package controller.main;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import constant.EUserRole;
-import static constant.EUserRole.ROLE_ADMINISTRATOR;
-import static constant.EUserRole.ROLE_MANAGER;
-import static constant.EUserRole.ROLE_OPERATOR;
-import static constant.EUserRole.ROLE_STUDENT;
-import static constant.EUserRole.ROLE_TEACHER;
 import constant.IGoogleConnection;
 import constant.UserQueryConstant;
 import dto.ExamStatistics;
@@ -289,32 +283,37 @@ public class MainServlet extends HttpServlet {
 
         if (fullName.isEmpty() || email.isEmpty() || rawPassword.isEmpty() || confirmPassword.isEmpty()) {
             setRequestAttributes(request, fullName, email, rawPassword, confirmPassword);
-            request.setAttribute("error_empty", "Please leave no field blank!");
-            request.getRequestDispatcher("/main/register.jsp").forward(request, response);
-            return;
+            request.setAttribute("error_empty", "Please do not leave this field blank!");
         }
 
         if (!UserValidation.isValidFullName(fullName)) {
-            request.setAttribute("error_fullName", "Full name must be 6-30 characters long.");
+            request.setAttribute("error_fullName", "Full name must be 6-30 characters long!");
             hasError = true;
         } else {
             request.setAttribute("error_fullName", "");
         }
 
         if (!UserValidation.isValidEmail(email)) {
-            request.setAttribute("error_email", "Email must be in the form @gmail.com.");
+            request.setAttribute("error_email", "Email must be in the form @gmail.com!");
             hasError = true;
         } else {
             request.setAttribute("error_email", "");
         }
 
         if (!confirmPassword.equals(rawPassword)) {
-            request.setAttribute("error_confirmPassword", "Passwords do not match.");
+            request.setAttribute("error_confirmPassword", "Passwords do not match!");
             hasError = true;
         } else {
             request.setAttribute("error_confirmPassword", "");
         }
 
+        if (!UserValidation.isPasswordStrong(rawPassword)) {
+            request.setAttribute("error_password", "Passwords do not match!");
+            hasError = true;
+        } else {
+            request.setAttribute("error_password", "");
+        }
+        
         if (hasError) {
             setRequestAttributes(request, fullName, email, rawPassword, confirmPassword);
             request.getRequestDispatcher("/main/register.jsp").forward(request, response);
@@ -325,7 +324,7 @@ public class MainServlet extends HttpServlet {
         List<User> users = uri.findAll();
         for (User u : users) {
             if (u.getEmail().equals(email)) {
-                request.setAttribute("error_email", "This email is already in use.");
+                request.setAttribute("error_email", "This email is already existed!");
                 setRequestAttributes(request, fullName, email, rawPassword, confirmPassword);
                 request.getRequestDispatcher("/main/register.jsp").forward(request, response);
                 return;

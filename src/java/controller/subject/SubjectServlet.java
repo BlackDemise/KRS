@@ -5,22 +5,39 @@ import dto.ManagerDto;
 import entity.Category;
 import entity.Subject;
 import entity.User;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
+import java.io.File;
+import java.io.FileOutputStream;
 import service.impl.SubjectServiceImpl;
 import service.impl.CategoryServiceImpl;
 import service.impl.UserServiceImpl;
 import util.SubjectValidation;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-@WebServlet(name = "SubjectServlet", urlPatterns = {"/subject", "/subject/add", "/subject/update", "/subject/updateStatus"})
+@WebServlet(name = "SubjectServlet", urlPatterns = {"/subject", "/subject/add", "/subject/update", "/subject/updateStatus",
+    "/subject/uploadExcel"})
+@MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 5 * 5)
 public class SubjectServlet extends HttpServlet {
 
     private final SubjectServiceImpl subjectService = SubjectServiceImpl.getInstance();
@@ -32,8 +49,10 @@ public class SubjectServlet extends HttpServlet {
             throws ServletException, IOException {
         final String ACTION = request.getServletPath();
         switch (ACTION) {
-            case "/subject" -> displaySubjects(request, response);
-            case "/subject/add" -> prepareAddSubject(request, response);
+            case "/subject" ->
+                displaySubjects(request, response);
+            case "/subject/add" ->
+                prepareAddSubject(request, response);
         }
     }
 
@@ -42,9 +61,14 @@ public class SubjectServlet extends HttpServlet {
             throws ServletException, IOException {
         final String ACTION = request.getServletPath();
         switch (ACTION) {
-            case "/subject/add" -> saveSubject(request, response);
-            case "/subject/update" -> updateSubject(request, response);
-            case "/subject/updateStatus" -> toggleSubjectStatus(request, response);
+            case "/subject/add" ->
+                saveSubject(request, response);
+            case "/subject/update" ->
+                updateSubject(request, response);
+            case "/subject/updateStatus" ->
+                toggleSubjectStatus(request, response);
+            case "/subject/uploadExcel" ->
+                uploadExcel(request, response);
         }
     }
 
@@ -81,12 +105,11 @@ public class SubjectServlet extends HttpServlet {
             totalSubjects = subjectService.countAll();
         }
         int totalPages = (int) Math.ceil((double) totalSubjects / itemsPerPage);
-        
+
         List<ManagerDto> listManagers = new ArrayList<>();
-        for(Subject s : subjects){
+        for (Subject s : subjects) {
             List<User> managersList = userService.findManagerById(s.getId());
             listManagers.add(new ManagerDto(s, managersList));
-            System.out.println(managersList.size());
         }
 
         int start = (currentPage - 1) * itemsPerPage + 1;
@@ -171,10 +194,10 @@ public class SubjectServlet extends HttpServlet {
         Category category = categoryService.findById(categoryId);
         Subject subject = new Subject(null, name, code, description, note, status, category, LocalDate.now(), LocalDate.now(), createdById, createdById);
         Subject savedSubject = subjectService.save(subject);
-        Long subjectId = savedSubject.getId();
-        for (String managerId : managerIds) {
-            subjectService.saveSubjectManager(Long.valueOf(managerId), subjectId);
-        }
+//        Long subjectId = savedSubject.getId();
+//        for (String managerId : managerIds) {
+//            subjectService.saveSubjectManager(Long.valueOf(managerId), subjectId);
+//        }
         if (savedSubject == null) {
             request.setAttribute("errorMessage", "Failed to add subject. Please try again.");
             request.getRequestDispatcher("/subject/add.jsp").include(request, response);
@@ -238,10 +261,10 @@ public class SubjectServlet extends HttpServlet {
         Subject updatedSubject = subjectService.save(subject);
 
         if (updatedSubject != null) {
-            subjectService.removeSubjectManagers(subjectId); // Remove existing managers
-            for (String managerId : managerIds) {
-                subjectService.saveSubjectManager(Long.valueOf(managerId), subjectId); // Add updated managers
-            }
+//            subjectService.removeSubjectManagers(subjectId); // Remove existing managers
+//            for (String managerId : managerIds) {
+//                subjectService.saveSubjectManager(Long.valueOf(managerId), subjectId); // Add updated managers
+//            }
             response.sendRedirect("/subject?updated=successful");
         } else {
             response.sendRedirect("/subject?updated=failed");
@@ -261,6 +284,66 @@ public class SubjectServlet extends HttpServlet {
             }
         } else {
             response.sendRedirect("/subject?statusUpdated=failed");
+        }
+    }
+
+    private void uploadExcel(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Part filePart = null;
+        try {
+            filePart = request.getPart("excelFile");
+        } catch (IOException | ServletException ex) {
+            Logger.getLogger(SubjectServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        if (filePart != null) {
+            if (filePart.getSize() > 0) {
+                try (InputStream inputStream = filePart.getInputStream()) {
+                    Workbook workbook = new XSSFWorkbook(inputStream);
+                    Sheet sheet = workbook.getSheetAt(0); // Assuming you want to read the first sheet
+
+                    Set<String> excelManagerEmails = new HashSet<>();
+
+                    for (Row row : sheet) {
+                        Cell idCell = row.getCell(0); // Assuming the manager ID is in the first column
+                        if (idCell != null) {
+                            String managerEmail = idCell.getStringCellValue().trim();
+                            excelManagerEmails.add(managerEmail);
+                        }
+                    }
+
+                    String subjectId = request.getParameter("subjectId");
+                    List<User> dbManagers = userService.findManagerById(Long.valueOf(subjectId));
+
+                    // Determine which manager IDs to add and which to remove
+                    Set<String> dbManagerEmailsSet = new HashSet<>();
+                    for (User u : dbManagers) {
+                        dbManagerEmailsSet.add(u.getEmail());
+                    }
+                    Set<String> emailsToAdd = new HashSet<>(excelManagerEmails);
+                    emailsToAdd.removeAll(dbManagerEmailsSet);
+                    Set<String> emailsToRemove = new HashSet<>(dbManagerEmailsSet);
+                    emailsToRemove.removeAll(excelManagerEmails);
+
+                    // Add new manager IDs
+                    for (String mngEmail : emailsToAdd) {
+                        subjectService.saveSubjectManager(mngEmail, Long.valueOf(subjectId));
+                    }
+
+                    // Remove missing manager IDs
+                    for (String mngEmail : emailsToRemove) {
+                        subjectService.removeSubjectManagers(mngEmail, Long.valueOf(subjectId));
+                    }
+
+                    response.sendRedirect("/subject?msg=successful");
+                } catch (Exception e) {
+                    e.printStackTrace(System.out);
+                    response.sendRedirect("/subject?msg=failed");
+                }
+            } else {
+                response.sendRedirect("/subject?msg=empty-file");
+            }
+        } else {
+            response.sendRedirect("/subject?msg=empty-file");
         }
     }
 }

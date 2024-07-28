@@ -15,9 +15,11 @@ import java.util.List;
 import mapper.ExamMapper;
 import static mapper.ExamMapper.examMapper;
 import mysql.DatabaseConnection;
-import java.sql.Date;
 import constant.ExamQueryConstant;
 import dto.ExamDetailsDto;
+import dto.QuestionDto;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,14 +51,14 @@ public class ExamRepositoryImpl implements ExamRepository {
     }
 
     @Override
-    public List<Exam> findByClassId(Long classId) {
+    public Map<Exam, Integer> findByClassId(Long classId) {
         try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ExamQueryConstant.FIND_BY_CLASS_ID)) {
             ps.setLong(1, classId);
 
             try (ResultSet rs = ps.executeQuery()) {
-                List<Exam> exams = new ArrayList();
+                Map<Exam, Integer> exams = new HashMap();
                 while (rs.next()) {
-                    exams.add(examMapper(rs));
+                    exams.put(examMapper(rs), rs.getInt("total_questions"));
                 }
 
                 return exams;
@@ -64,7 +66,7 @@ public class ExamRepositoryImpl implements ExamRepository {
         } catch (SQLException | NullPointerException e) {
             e.printStackTrace(System.err);
         }
-        return Collections.emptyList();
+        return Collections.emptyMap();
     }
 
     public boolean saveExamDetails(ExamDetails examDetails) throws SQLException {
@@ -78,7 +80,7 @@ public class ExamRepositoryImpl implements ExamRepository {
             ps.setLong(3, examDetails.getQuestion().getId());
             ps.setLong(4, examDetails.getSubmittedAnswer().getAnswerId());
             ps.setLong(5, examDetails.getSubmittedAnswer().getAnswerId());
-            ps.setDate(6, Date.valueOf(examDetails.getTakenAt()));
+            ps.setObject(6, examDetails.getTakenAt());
 
             int rowAffected = ps.executeUpdate();
             c.commit();
@@ -155,4 +157,30 @@ public class ExamRepositoryImpl implements ExamRepository {
         return Collections.emptyList();
     }
 
+    public Map<Long, List<QuestionDto>> findQuestionsInAnExam(Long examId) {
+        Map<Long, List<QuestionDto>> questionsMap = new HashMap<>();
+
+        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(ExamQueryConstant.GET_ALL_QUESTIONS_IN_AN_EXAM)) {
+            ps.setLong(1, examId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Long questionId = rs.getLong("question_id");
+                    QuestionDto questionDto = QuestionDto.builder()
+                            .questionId(questionId)
+                            .questionContent(rs.getString("content"))
+                            .answer(rs.getString("answer"))
+                            .answerId(rs.getLong("answer_id"))
+                            .isCorrect(rs.getBoolean("is_correct"))
+                            .build();
+
+                    questionsMap.computeIfAbsent(questionId, k -> new ArrayList<>()).add(questionDto);
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ExamRepository.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return questionsMap;
+    }
 }

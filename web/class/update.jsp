@@ -129,6 +129,35 @@
                 font-size: 0.875rem;
                 margin-top: 5px;
             }
+
+            .radio-inline {
+                display: inline-block;
+                margin-right: 10px;
+            }
+
+            .radio-inline input {
+                display: none; /* Hide the actual radio button */
+            }
+
+            .radio-inline label {
+                display: inline-block;
+                padding: 10px 20px;
+                border: 1px solid #007bff;
+                border-radius: 5px;
+                background-color: #cce5ff; /* Lighter background color */
+                color: #007bff; /* Darker text color */
+                cursor: pointer;
+                transition: background-color 0.3s, color 0.3s;
+            }
+
+            .radio-inline input:checked + label {
+                background-color: #007bff; /* Darker background color */
+                color: white; /* Lighter text color */
+            }
+
+            .radio-inline label:hover {
+                background-color: #b3d7ff; /* Slightly darker on hover */
+            }
         </style>
     </head>
 
@@ -191,7 +220,9 @@
                                                     <select id="teacher" name="teacher" class="form-control" required>
                                                         <option value="">Select teacher</option>
                                                         <c:forEach var="teacher" items="${teachers}">
-                                                            <option value="${teacher.id}" <c:if test="${teacher.id == classroom.teacher.id}">selected</c:if>>${teacher.fullName}</option>
+                                                            <option value="${teacher.id}" ${teacher.id == classroom.teacher.id ? 'selected' : ''}>
+                                                                ${teacher.fullName}
+                                                            </option>
                                                         </c:forEach>
                                                     </select>
                                                 </div>
@@ -199,19 +230,24 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Status</label>
-                                                    <div>
-                                                        <input type="radio" id="active" name="status" value="ACTIVE" ${classroom.status == 'ACTIVE' ? 'checked' : ''}>
+                                                    <div class="radio-inline">
+                                                        <input type="radio" id="active" name="status" value="ACTIVE" ${classroom.status == 'Active' ? 'checked' : ''}>
                                                         <label for="active">Active</label>
                                                     </div>
-                                                    <div>
-                                                        <input type="radio" id="inactive" name="status" value="INACTIVE" ${classroom.status == 'INACTIVE' ? 'checked' : ''}>
+                                                    <div class="radio-inline">
+                                                        <input type="radio" id="inactive" name="status" value="INACTIVE" ${classroom.status == 'Inactive' ? 'checked' : ''}>
                                                         <label for="inactive">Inactive</label>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <button type="submit" class="btn btn-primary">Update Class</button>
-                                        <button type="button" class="btn btn-danger" onclick="location.href = '${pageContext.request.contextPath}/class'">Cancel</button>
+                                        <div class="d-flex justify-content-between">
+                                            <a href="/class/exam?classId=${classroom.id}" class="btn btn-success">All Exams</a>
+                                            <div>
+                                                <button type="submit" class="btn btn-primary">Update Class</button>
+                                                <button type="button" class="btn btn-danger" onclick="location.href = '${pageContext.request.contextPath}/class'">Cancel</button>
+                                            </div>
+                                        </div>
                                     </form>
                                 </div>
                             </div>
@@ -258,19 +294,19 @@
         <!-- Icons -->
         <script src="${pageContext.request.contextPath}/assets/js/feather.min.js"></script>
         <script>
-                                            const currentSite = '${currentSite}';
+                                                    const currentSite = '${currentSite}';
         </script>
         <!-- Main Js -->
         <script src="${pageContext.request.contextPath}/assets/js/app.js"></script>
 
         <script>
-                                            // Select/Deselect all checkboxes
-                                            document.getElementById('select-all').onclick = function () {
-                                                var checkboxes = document.getElementsByName('selectedStudents');
-                                                for (var checkbox of checkboxes) {
-                                                    checkbox.checked = this.checked;
-                                                }
-                                            };
+                                                    // Select/Deselect all checkboxes
+                                                    document.getElementById('select-all').onclick = function () {
+                                                        var checkboxes = document.getElementsByName('selectedStudents');
+                                                        for (var checkbox of checkboxes) {
+                                                            checkbox.checked = this.checked;
+                                                        }
+                                                    };
         </script>
     </body>
 </html>

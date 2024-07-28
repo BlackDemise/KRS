@@ -138,9 +138,8 @@
             <!-- Icons -->
             <script src="../assets/js/feather.min.js"></script>
             <script type="text/javascript">
-            const currentSite = '${currentSite}';
+                const currentSite = '${currentSite}';
             </script>
-
             <!-- Main Js -->
             <script src="../assets/js/app.js"></script>
 

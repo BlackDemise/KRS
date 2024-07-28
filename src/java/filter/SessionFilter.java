@@ -51,7 +51,8 @@ public class SessionFilter implements Filter {
                             && !requestURI.contains("/subject/update") && !requestURI.contains("/subject/updateStatus")
                             && !requestURI.contains("/class/add") && !requestURI.contains("/class/update")
                             || requestURI.contains("/flashcard/all-flashcard") || requestURI.contains("/flashcard/my-flashcard")
-                            || requestURI.contains("/flashcard/add-flashcard");
+                            || requestURI.contains("/flashcard/add-flashcard") || requestURI.contains("/flashcard/flashcard-details")
+                            || requestURI.contains("/flashcard/update-flashcard");
                 }
                 case ROLE_STUDENT -> {
                     isAuthenticated = requestURI.contains("/my-subjects") || requestURI.endsWith("/dashboard")
@@ -61,7 +62,8 @@ public class SessionFilter implements Filter {
                             && !requestURI.contains("/subject/update") && !requestURI.contains("/subject/updateStatus")
                             && !requestURI.contains("/class/add") && !requestURI.contains("/class/update")
                             || requestURI.contains("/flashcard/all-flashcard") || requestURI.contains("/flashcard/my-flashcard")
-                            || requestURI.contains("/flashcard/add-flashcard");
+                            || requestURI.contains("/flashcard/add-flashcard") || requestURI.contains("/flashcard/flashcard-details")
+                            || requestURI.contains("/flashcard/update-flashcard");
                 }
                 default -> {
                     isAuthenticated = false;

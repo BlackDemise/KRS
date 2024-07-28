@@ -1,6 +1,6 @@
 package dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ public class ExamStatistics {
     private String className;
     private int actualScore;
     private int maxScore;
-    private LocalDate takenAt;
+    private LocalDateTime takenAt;
     
     public void incrementActualScore() {
         actualScore++;

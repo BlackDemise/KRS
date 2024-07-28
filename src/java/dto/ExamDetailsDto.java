@@ -1,6 +1,6 @@
 package dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,5 +21,5 @@ public class ExamDetailsDto {
     private Long studentId;
     private Long submittedAnswerId;
     private Long correctAnswerId;
-    private LocalDate takenAt;
+    private LocalDateTime takenAt;
 }

@@ -1,6 +1,6 @@
 package entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,5 +17,5 @@ public class ExamDetails {
     private Question question;
     private Answer submittedAnswer;
     private Answer correctAnswer;
-    private LocalDate takenAt;
+    private LocalDateTime takenAt;
 }

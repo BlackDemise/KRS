@@ -202,10 +202,10 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     public List<User> findAllTeachers() {
-        String sql = "SELECT * FROM user WHERE role_id = ?"; // Assuming role_id for teachers is 4
+        String sql = "SELECT * FROM user WHERE role_id = ?"; // teacher_role is 3 
         List<User> teachers = new ArrayList<>();
         try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, 4); // Assuming role_id for teachers is 4
+            ps.setInt(1, 3); 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 teachers.add(userMapper(rs));
