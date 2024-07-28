@@ -193,7 +193,8 @@ public class ClassRepositoryImpl implements ClassRepository {
         return 0;
     }
 
-    public void save(Classroom classroom) {
+    public boolean save(Classroom classroom) {
+        int check = 0;
         boolean isAddAction = classroom.getId() == null;
         Connection con = null;
 
@@ -214,7 +215,7 @@ public class ClassRepositoryImpl implements ClassRepository {
                 ps.setLong(5, classroom.getId());
             }
 
-            ps.executeUpdate();
+            check = ps.executeUpdate();
             c.commit();
 
             if (isAddAction) {
@@ -233,30 +234,21 @@ public class ClassRepositoryImpl implements ClassRepository {
             }
             e.printStackTrace(System.err);
         }
+        return check > 0;
     }
 
-//    public void addStudentToClass(User student, Classroom classroom) {
-//        String sql = "INSERT INTO student_class (user_id, class_id) VALUES (?, ?)";
-//        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-//            ps.setLong(1, student.getId());
-//            ps.setLong(2, classroom.getId());
-//            ps.executeUpdate();
-//        } catch (SQLException e) {
-//            e.printStackTrace(System.err);
-//        }
-//    }
-    
-    public void addStudentToClass(String studentEmail, Long classroom) {
-
+    public boolean addStudentToClass(String studentEmail, Long classroom) {
+        int check = 0;
         String sql = "INSERT INTO student_class (user_id, class_id)\n"
                 + "VALUES((SELECT id FROM user where email like ?), ?) ";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, studentEmail);
             ps.setLong(2, classroom);
-            ps.executeUpdate();
+            check = ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace(System.err);
         }
+        return check > 0;
     }
 
     public void deleteStudents(String studentEmail, Long classroom) {

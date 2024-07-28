@@ -380,6 +380,38 @@
                     </div>
                 </div>
             </c:when>
+
+            <c:when test="${param.updated == 'successful'}">
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
+                        <div class="toast-header">
+                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
+                            <strong class="me-auto">KRS System</strong>
+                            <small class="mt-1">A few seconds ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body text-success">
+                            Class changed successfully!
+                        </div>
+                    </div>
+                </div>
+            </c:when>
+
+            <c:when test="${param.updated == 'failed'}">
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
+                        <div class="toast-header">
+                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
+                            <strong class="me-auto">KRS System</strong>
+                            <small class="mt-1">A few seconds ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body text-danger">
+                            Failed to change status!
+                        </div>
+                    </div>
+                </div>
+            </c:when>
         </c:choose>
         <!-- End Success Toast Message -->
         <!-- javascript -->
@@ -399,20 +431,20 @@
         <!-- Icons -->
         <script src="../assets/js/feather.min.js"></script>
         <script type="text/javascript">
-                                                                const currentSite = '${currentSite}';
+                                            const currentSite = '${currentSite}';
         </script>
         <!-- Main Js -->
         <script src="../assets/js/app.js"></script>
         <script>
-                                                                document.addEventListener('DOMContentLoaded', function () {
-                                                                    var toastEl = document.getElementById('liveToast');
-                                                                    if (toastEl) {
-                                                                        var toast = new bootstrap.Toast(toastEl, {
-                                                                            delay: 2000
-                                                                        });
-                                                                        toast.show();
-                                                                    }
-                                                                });
+                                            document.addEventListener('DOMContentLoaded', function () {
+                                                var toastEl = document.getElementById('liveToast');
+                                                if (toastEl) {
+                                                    var toast = new bootstrap.Toast(toastEl, {
+                                                        delay: 2000
+                                                    });
+                                                    toast.show();
+                                                }
+                                            });
         </script>
     </body>
 </html>

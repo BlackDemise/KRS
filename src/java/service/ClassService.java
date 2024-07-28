@@ -15,28 +15,4 @@ import java.util.List;
  */
 public interface ClassService {
 
-    List<Classroom> findAll();
-
-    List<Classroom> findAll(int itemsPerPage, int currentPage);
-
-    List<Classroom> findByFilters(String className, String teacherName, String subjectName, int itemsPerPage, int currentPage);
-
-    List<StudentDto> findAllStudents(Long classId);
-
-    int getTotalClasses();
-    
-    int getTotalClasses(Long studentId);
-
-    int getTotalClassesByFilters(String className, String teacherName, String subjectName);
-
-    void save(Classroom classroom);
-
-    void addStudentToClass(User student, Classroom classroom);
-
-    void clearStudents(Long classId);
-
-    void updateStatus(Classroom classroom);
-
-    Classroom findById(Long classId);
-
 }

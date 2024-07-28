@@ -64,7 +64,7 @@ public class ClassServlet extends HttpServlet {
                 if (classId != null) {
                     Long cId = Long.valueOf(classId);
                     Map<Exam, Integer> exams = examService.findByClassId(cId);
-                    
+
                     request.setAttribute("currentSite", "/class");
                     request.setAttribute("exams", exams);
                     request.getRequestDispatcher("/class/all-exams.jsp").forward(request, response);
@@ -74,10 +74,9 @@ public class ClassServlet extends HttpServlet {
                 String classId = request.getParameter("classId");
                 if (classId != null) {
                     Long cId = Long.valueOf(classId);
-                   
-                    
+
                     request.setAttribute("currentSite", "/class");
- 
+
                     request.getRequestDispatcher("/class/exam-details.jsp").forward(request, response);
                 }
             }
@@ -249,9 +248,12 @@ public class ClassServlet extends HttpServlet {
             classroom.setTeacher(userRepository.findById(teacherId));
             classroom.setStatus(status);
 
-            classRepository.save(classroom);
-
-            response.sendRedirect(request.getContextPath() + "/class?updated=successful");
+            boolean isSave = classRepository.save(classroom);
+            if (isSave) {
+                response.sendRedirect(request.getContextPath() + "/class?updated=successful");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/class?updated=failed");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/error/error.jsp");

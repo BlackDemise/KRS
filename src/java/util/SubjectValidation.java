@@ -9,13 +9,13 @@ public class SubjectValidation {
 
     // Validate Name: Only alphabets (both lowercase and uppercase), spaces, and positive integers, can be in English or Vietnamese
     public static boolean validateName(String name) {
-        String nameRegex = "^[a-zA-ZÀ-ỹ\\s\\d]+$";
+        String nameRegex = "^[a-zA-Z\\s\\d-\\.]+$";
         return name != null && name.matches(nameRegex);
     }
 
     // Validate Code: Only alphabets (both lowercase and uppercase) and positive integers, can be in English or Vietnamese
     public static boolean validateCode(String code) {
-        String codeRegex = "^[a-zA-ZÀ-ỹ\\d]+$";
+        String codeRegex = "^[a-zA-Z\\d]+$";
         return code != null && code.matches(codeRegex);
     }
 

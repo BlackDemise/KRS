@@ -6,7 +6,6 @@ import dto.SubjectDto;
 import java.util.List;
 import mysql.DatabaseConnection;
 import repository.SubjectRepository;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

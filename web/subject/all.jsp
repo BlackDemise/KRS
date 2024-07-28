@@ -43,12 +43,13 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <form class="d-flex" method="get" action="/subject">
-                                    <input class="form-control me-2" type="search" name="searchQuery" placeholder="Enter name:" aria-label="Search" value="${searchQuery}">
-                                    <button class="btn btn-outline-success me-2" type="submit">Search</button>
-                                    <c:if test="${searchQuery != null && !searchQuery.isEmpty()}">
-                                        <button type="button" class="btn btn-outline-secondary" id="cancelSearch">Cancel</button>
-                                    </c:if>
-                                </form>
+    <input class="form-control me-2" type="search" name="searchQuery" placeholder="Enter name:" aria-label="Search" value="${searchQuery}">
+    <button class="btn btn-outline-success me-2" type="submit">Search</button>
+    <c:if test="${searchQuery != null && !searchQuery.isEmpty()}">
+        <button type="button" class="btn btn-outline-secondary" id="cancelSearch">Cancel</button>
+    </c:if>
+</form>
+
                             </div>
                             <c:choose>
                                 <c:when test="${sessionScope.user.role.title.userRole == 'Administrator'}">
@@ -165,7 +166,7 @@
                                                                     </div><!--end col-->
 
                                                                     <div class="col-md-6">
-                                                                        <label class="form-label">Status</label>
+                                                                        <label class="form-label">Status</label>            
                                                                         <div class="form-check">
                                                                             <input class="form-check-input" type="radio" name="statusSubject" id="statusSubjectActive${s.subject.id}" value="ACTIVE" <c:if test="${s.subject.status == 'ACTIVE'}">checked</c:if> required>
                                                                             <label class="form-check-label" for="statusSubjectActive${s.subject.id}">ACTIVE</label><br>
@@ -314,22 +315,122 @@
         </c:forEach>
         <!-- End Modal for Managers -->
 
-        <!-- Toast notifications -->
-        <c:if test="${added == 'successful'}">
-            <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
-                    <div class="toast-header">
-                        <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
-                        <strong class="me-auto">KRS System</strong>
-                        <small class="mt-1">A few seconds ago</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body text-success-emphasis">
-                        Added successfully!
+        <c:choose>
+            <c:when test="${param.msg == 'successful'}">
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
+                        <div class="toast-header">
+                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
+                            <strong class="me-auto">KRS System</strong>
+                            <small class="mt-1">A few seconds ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body text-success">
+                            Change Students Successfully!
+                        </div>
                     </div>
                 </div>
-            </div>
-        </c:if>
+            </c:when>
+
+            <c:when test="${param.msg == 'failed'}">
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
+                        <div class="toast-header">
+                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
+                            <strong class="me-auto">KRS System</strong>
+                            <small class="mt-1">A few seconds ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body text-danger">
+                            Change Students Failed!
+                        </div>
+                    </div>
+                </div>
+            </c:when>
+
+            <c:when test="${param.updated == 'successful'}">
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
+                        <div class="toast-header">
+                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
+                            <strong class="me-auto">KRS System</strong>
+                            <small class="mt-1">A few seconds ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body text-success">
+                            Change subjects Successfully!
+                        </div>
+                    </div>
+                </div>
+            </c:when>
+
+            <c:when test="${param.updated == 'failed'}">
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
+                        <div class="toast-header">
+                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
+                            <strong class="me-auto">KRS System</strong>
+                            <small class="mt-1">A few seconds ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body text-danger">
+                            Failed to change subjects!
+                        </div>
+                    </div>
+                </div>
+            </c:when>
+
+
+
+            <c:when test="${param.statusUpdated == 'successful'}">
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
+                        <div class="toast-header">
+                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
+                            <strong class="me-auto">KRS System</strong>
+                            <small class="mt-1">A few seconds ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body text-success">
+                            Status changed successfully!
+                        </div>
+                    </div>
+                </div>
+            </c:when>
+
+            <c:when test="${param.statusChanged == 'failed'}">
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
+                        <div class="toast-header">
+                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
+                            <strong class="me-auto">KRS System</strong>
+                            <small class="mt-1">A few seconds ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body text-danger">
+                            Failed to change status!
+                        </div>
+                    </div>
+                </div>
+            </c:when>
+
+            <c:when test="${param.added == 'successful'}">
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: 350px">
+                        <div class="toast-header">
+                            <img src="../assets/images/favicon.ico.png" class="rounded me-2" alt="web-logo" height="20" width="20">
+                            <strong class="me-auto">KRS System</strong>
+                            <small class="mt-1">A few seconds ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body text-success">
+                            Added successfully!
+                        </div>
+                    </div>
+                </div>
+            </c:when>
+
+        </c:choose>
         <!-- Similar toast notifications for other actions -->
 
         <!-- JavaScript files -->
@@ -354,12 +455,6 @@
         <!-- Main Js -->
         <script src="../assets/js/app.js"></script>
         <script>
-            const myModal = document.getElementById('myModal');
-            const myInput = document.getElementById('myInput');
-
-            myModal.addEventListener('shown.bs.modal', () => {
-                myInput.focus();
-            });
 
             document.addEventListener('DOMContentLoaded', function () {
                 var toastEl = document.getElementById('liveToast');

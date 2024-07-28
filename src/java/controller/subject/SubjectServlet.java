@@ -140,7 +140,6 @@ public class SubjectServlet extends HttpServlet {
         String name = request.getParameter("name");
         String code = request.getParameter("code");
         Long categoryId = Long.valueOf(request.getParameter("category"));
-        String[] managerIds = request.getParameterValues("managerIds");
         String description = request.getParameter("description");
         String note = request.getParameter("note");
         String statusParam = request.getParameter("status");
@@ -248,7 +247,7 @@ public class SubjectServlet extends HttpServlet {
         if (hasErrors) {
             List<Category> categories = categoryService.findAll();
             request.setAttribute("categories", categories);
-            request.getRequestDispatcher("/subject/all.jsp").include(request, response);
+            response.sendRedirect("/subject?updated=failed");
             return;
         }
 
