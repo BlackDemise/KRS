@@ -18,11 +18,19 @@
         itemsPerPage = Integer.parseInt(request.getParameter("itemsPerPage"));
     }
     
+    String searchQuery = request.getParameter("searchQuery");
+    if (searchQuery != null && !searchQuery.isEmpty()) {
+        searchQuery = "%" + searchQuery + "%";
+    } else {
+        searchQuery = "%%";
+    }
+    
     UserServiceImpl userService = UserServiceImpl.getInstance();
-    List<User> users = userService.findAllWithPaging(itemsPerPage, currentPage);
-    int totalUsers = userService.findAll().size();
+    List<User> users = userService.findAllWithPaging(itemsPerPage, currentPage, searchQuery);
+    int totalUsers = userService.countUsers(searchQuery);
     int totalPages = (int) Math.ceil((double) totalUsers / itemsPerPage);
     
+    request.setAttribute("totalUsers", totalUsers);
     request.setAttribute("users", users);
     request.setAttribute("currentPage", currentPage);
     request.setAttribute("totalPages", totalPages);
@@ -79,12 +87,17 @@
                 <div class="container-fluid">
                     <div class="layout-specing">
                         <div class="row">
-                            <div class="col-md-4 ms-auto">
-                                <form class="d-flex">
-                                    <input class="form-control me-2" type="search" placeholder="Enter email:" aria-label="Search">
-                                </form>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">All Users</h5>
+                                <div class="col-md-6">
+                                    <form class="d-flex" action='/user' method='get'>
+                                        <input class="form-control me-2" type="search" placeholder="Enter email:" aria-label="Search" name='searchQuery' value="${param.searchQuery}">
+                                        <button type='submit' class='btn btn-primary'>Search</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
+
 
                         <div class="row">
                             <div class="col-12 mt-4">
@@ -245,27 +258,27 @@
                             </div>
                         </div>
 
-
                         <div class="row text-center">
                             <div class="col-12 mt-4">
                                 <div class="d-md-flex align-items-center text-center justify-content-between">
                                     <span class="text-muted me-3">Showing <%= (currentPage - 1) * itemsPerPage + 1 %> - <%= Math.min(currentPage * itemsPerPage, totalUsers) %> out of <%= totalUsers %></span>
                                     <ul class="pagination justify-content-center mb-0 mt-3 mt-sm-0">
                                         <li class="page-item <%= (currentPage == 1) ? "disabled" : "" %>">
-                                            <a class="page-link" href="?currentPage=<%= currentPage - 1 %>&itemsPerPage=<%= itemsPerPage %>" aria-label="Previous">Previous</a>
+                                            <a class="page-link" href="?currentPage=<%= currentPage - 1 %>&itemsPerPage=<%= itemsPerPage %>&searchQuery=<%= searchQuery %>" aria-label="Previous">Previous</a>
                                         </li>
                                         <% for (int i = 1; i <= totalPages; i++) { %>
                                         <li class="page-item <%= (currentPage == i) ? "active" : "" %>">
-                                            <a class="page-link" href="?currentPage=<%= i %>&itemsPerPage=<%= itemsPerPage %>"><%= i %></a>
+                                            <a class="page-link" href="?currentPage=<%= i %>&itemsPerPage=<%= itemsPerPage %>&searchQuery=<%= searchQuery %>"><%= i %></a>
                                         </li>
                                         <% } %>
                                         <li class="page-item <%= (currentPage == totalPages) ? "disabled" : "" %>">
-                                            <a class="page-link" href="?currentPage=<%= currentPage + 1 %>&itemsPerPage=<%= itemsPerPage %>" aria-label="Next">Next</a>
+                                            <a class="page-link" href="?currentPage=<%= currentPage + 1 %>&itemsPerPage=<%= itemsPerPage %>&searchQuery=<%= searchQuery %>" aria-label="Next">Next</a>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
+
 
                     </div>
                 </div><!--end container-->

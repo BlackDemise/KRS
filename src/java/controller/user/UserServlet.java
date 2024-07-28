@@ -256,7 +256,7 @@ public class UserServlet extends HttpServlet {
         Long currentUserId = current.getId();
 
         User toUpdate = new User(currentUserId, fullName, email, phoneNumber, dob, current.getPassword(), current.getNote(),
-                fileName, current.getCreatedAt(), LocalDate.now(), current.getCreatedById(), current.getLastModifiedById(),
+                fileName, current.getCreatedAt(), LocalDateTime.now(), current.getCreatedById(), current.getLastModifiedById(),
                 current.getUserStatus(), current.getRole());
 
         if (isUpdatingEmail) {
@@ -269,7 +269,7 @@ public class UserServlet extends HttpServlet {
                 current.setPhoneNumber(phoneNumber);
                 current.setDob(dob);
                 current.setLastModifiedById(currentUserId);
-                current.setLastModifiedAt(LocalDate.now());
+                current.setLastModifiedAt(LocalDateTime.now());
                 response.sendRedirect("/user/profile.jsp?updated=successful");
             } else {
                 request.setAttribute("currentSite", "/user/profile");
@@ -331,7 +331,7 @@ public class UserServlet extends HttpServlet {
             current.setPhoneNumber(toUpdate.getPhoneNumber());
             current.setDob(toUpdate.getDob());
             current.setLastModifiedById(toUpdate.getLastModifiedById());
-            current.setLastModifiedAt(LocalDate.now());
+            current.setLastModifiedAt(LocalDateTime.now());
             tokenRepo.deleteToken(token);
             response.sendRedirect("/user?updation=successful");
         } else {

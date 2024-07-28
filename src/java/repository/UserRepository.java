@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface UserRepository {
 
-    List<User> findAll(int page, int offset);
+    List<User> findAll(int page, int offset, String searchQuery);
 
     User findById(Long id);
 

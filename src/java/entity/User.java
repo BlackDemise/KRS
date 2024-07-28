@@ -2,6 +2,7 @@ package entity;
 
 import constant.EUserStatus;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,8 +26,8 @@ public class User {
     private String password;
     private String note;
     private String avatar;
-    private LocalDate createdAt;
-    private LocalDate lastModifiedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime lastModifiedAt;
     private Long createdById;
     private Long lastModifiedById;
     private EUserStatus userStatus;
@@ -37,10 +38,10 @@ public class User {
         this.fullName = fullName;
         this.email = email;
         this.password = BCrypt.hashpw("default_password", BCrypt.gensalt(12));
-        this.createdAt = LocalDate.now();
-        this.lastModifiedAt = LocalDate.now();
+        this.createdAt = LocalDateTime.now();
+        this.lastModifiedAt = LocalDateTime.now();
         this.userStatus = EUserStatus.ACTIVE;
-        this.role = RoleRepositoryImpl.getInstance().findById(5L); // Assume 5L is the role ID for students
+        this.role = RoleRepositoryImpl.getInstance().findById(4L); // Assume 4L is the role ID for students
     }
 
     // For Google login
@@ -56,14 +57,14 @@ public class User {
         // default avatar
         this.avatar = "default_avatar.png";
         // default created time
-        this.createdAt = LocalDate.now();
+        this.createdAt = LocalDateTime.now();
         // default last modified time
-        this.lastModifiedAt = LocalDate.now();
+        this.lastModifiedAt = LocalDateTime.now();
         // default status
         this.userStatus = EUserStatus.ACTIVE;
         // default role
         RoleRepositoryImpl rri = RoleRepositoryImpl.getInstance();
-        Role r = rri.findById(5L);
+        Role r = rri.findById(4L);
         this.role = r;
     }
 
@@ -81,9 +82,9 @@ public class User {
         // default avatar
         this.avatar = "default_avatar.png";
         // default created time
-        this.createdAt = LocalDate.now();
+        this.createdAt = LocalDateTime.now();
         // default last modified time
-        this.lastModifiedAt = LocalDate.now();
+        this.lastModifiedAt = LocalDateTime.now();
         this.createdById = createdById;
         this.lastModifiedById = lastModifiedById;
         this.userStatus = userStatus;
@@ -101,18 +102,18 @@ public class User {
         // default avatar
         this.avatar = "default_avatar.png";
         // default created time
-        this.createdAt = LocalDate.now();
+        this.createdAt = LocalDateTime.now();
         // default last modified time
-        this.lastModifiedAt = LocalDate.now();
+        this.lastModifiedAt = LocalDateTime.now();
         this.createdById = -1L;
         this.lastModifiedById = -1L;
         // default status
         this.dob = LocalDate.now();
-        this.phoneNumber = "1234567890";
+        this.phoneNumber = "0912345678";
         this.userStatus = EUserStatus.ACTIVE;
 
         RoleRepositoryImpl rri = RoleRepositoryImpl.getInstance();
-        Role r = rri.findById(5L);
+        Role r = rri.findById(4L);
         this.role = r;
     }
 

@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import static mapper.UserMapper.userMapper;
 import org.mindrot.jbcrypt.BCrypt;
 import constant.UserQueryConstant;
-import java.util.Collection;
+import java.time.LocalDateTime;
 
 public class UserRepositoryImpl implements UserRepository {
 
@@ -47,11 +47,12 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<User> findAll(int itemsPerPage, int page) {
+    public List<User> findAll(int itemsPerPage, int page, String searchQuery) {
         int offset = (page - 1) * itemsPerPage;
         try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(UserQueryConstant.FIND_ALL_WITH_PAGING)) {
-            ps.setInt(1, itemsPerPage);
-            ps.setInt(2, offset);
+            ps.setString(1, searchQuery);
+            ps.setInt(2, itemsPerPage);
+            ps.setInt(3, offset);
             ResultSet rs = ps.executeQuery();
             List<User> users = new ArrayList<>();
             while (rs.next()) {
@@ -126,12 +127,12 @@ public class UserRepositoryImpl implements UserRepository {
             ps.setString(3, u.getNote());
             ps.setString(4, u.getEmail());
             ps.setString(5, u.getPhoneNumber());
-            ps.setDate(6, Date.valueOf(u.getDob()));
+            ps.setObject(6, LocalDateTime.now());
             ps.setString(7, u.getPassword());
             ps.setString(8, u.getUserStatus().getUserStatus());
             ps.setLong(9, u.getRole().getId());
-            ps.setDate(10, Date.valueOf(u.getCreatedAt()));
-            ps.setDate(11, Date.valueOf(u.getLastModifiedAt()));
+            ps.setObject(10, u.getCreatedAt());
+            ps.setObject(11, u.getLastModifiedAt());
             ps.setLong(12, createdById == null ? -1 : createdById);
             ps.setLong(13, lastModifiedById == null ? -1 : lastModifiedById);
             if (!isAddAction) {
@@ -300,5 +301,20 @@ public class UserRepositoryImpl implements UserRepository {
             e.printStackTrace();
         }
         return Collections.emptyList();
+    }
+    
+    public int countUsers(String searchQuery) {
+        String sql = "SELECT COUNT(*) FROM users WHERE email LIKE ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, searchQuery);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }
