@@ -24,18 +24,6 @@
                             <li><a href="/dashboard"><i class="uil uil-dashboard me-2 d-inline-block"></i>Dashboard</a></li>
 
                             <li class="sidebar-dropdown">
-                                <a href="javascript:void(0)"><i class="uil uil-user me-2 d-inline-block"></i>Settings</a>
-                                <div class="sidebar-submenu">
-                                    <ul>
-                                        <li><a href="/user-settings">User Settings</a></li>
-                                        <li><a href="/subject-settings">Subject Settings</a></li>
-                                        <li><a href="/class-settings">Class Settings</a></li>
-                                        <li><a href="/exam-settings">Exam Settings</a></li> 
-                                    </ul>
-                                </div>
-                            </li>     
-
-                            <li class="sidebar-dropdown">
                                 <a href="javascript:void(0)"><i class="uil uil-flip-h me-2 d-inline-block"></i>Blogs</a>
                                 <div class="sidebar-submenu">
                                     <ul>
@@ -104,17 +92,6 @@
                             <li><a href="/dashboard"><i class="uil uil-dashboard me-2 d-inline-block"></i>Dashboard</a></li>
 
                             <li class="sidebar-dropdown">
-                                <a href="javascript:void(0)"><i class="uil uil-user me-2 d-inline-block"></i>Settings</a>
-                                <div class="sidebar-submenu">
-                                    <ul>
-                                        <li><a href="/subject-settings">Subject Settings</a></li>
-                                        <li><a href="/class-settings">Class Settings</a></li>
-                                        <li><a href="/exam-settings">Exam Settings</a></li> 
-                                    </ul>
-                                </div>
-                            </li>      
-
-                            <li class="sidebar-dropdown">
                                 <a href="javascript:void(0)"><i class="uil uil-flip-h me-2 d-inline-block"></i>Blogs</a>
                                 <div class="sidebar-submenu">
                                     <ul>
@@ -175,16 +152,6 @@
                     <c:when test="${sessionScope.user.role.title.userRole == 'Teacher'}">
                         <ul class="sidebar-menu pt-3">
                             <li><a href="/dashboard"><i class="uil uil-dashboard me-2 d-inline-block"></i>Dashboard</a></li>
-
-                            <li class="sidebar-dropdown">
-                                <a href="javascript:void(0)"><i class="uil uil-user me-2 d-inline-block"></i>Settings</a>
-                                <div class="sidebar-submenu">
-                                    <ul>
-                                        <li><a href="/class-settings">Class Settings</a></li>
-                                        <li><a href="/exam-settings">Exam Settings</a></li> 
-                                    </ul>
-                                </div>
-                            </li> 
 
                             <li class="sidebar-dropdown">
                                 <a href="javascript:void(0)"><i class="uil uil-flip-h me-2 d-inline-block"></i>Blogs</a>

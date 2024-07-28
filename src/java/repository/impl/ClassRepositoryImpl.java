@@ -416,8 +416,8 @@ public class ClassRepositoryImpl implements ClassRepository {
             ps.setString(5, user.getPassword());
             ps.setString(6, user.getNote());
             ps.setString(7, user.getAvatar());
-            ps.setDate(8, Date.valueOf(user.getCreatedAt()));
-            ps.setDate(9, Date.valueOf(user.getLastModifiedAt()));
+            ps.setObject(8, user.getCreatedAt());
+            ps.setObject(9, user.getLastModifiedAt());
             ps.setLong(10, user.getCreatedById());
             ps.setLong(11, user.getLastModifiedById());
             ps.setString(12, user.getUserStatus().name());

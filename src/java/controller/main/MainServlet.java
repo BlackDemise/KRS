@@ -46,6 +46,7 @@ import repository.impl.UserRepositoryImpl;
 import service.impl.ClassServiceImpl;
 import service.impl.ExamServiceImpl;
 import service.impl.UserServiceImpl;
+import util.PasswordGenerator;
 import util.SendEmail;
 import util.UserValidation;
 
@@ -151,12 +152,9 @@ public class MainServlet extends HttpServlet {
                 }
             }
             case "/register" -> {
-                try {
-                    register(request, response);
-                } catch (IOException | ServletException ex) {
-                    Logger.getLogger(MainServlet.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                register(request, response);
             }
+
             case "/reset-password" -> {
                 try {
                     resetPassword(request, response);
@@ -199,6 +197,10 @@ public class MainServlet extends HttpServlet {
         }
 
         if (!isDuplicated) {
+            String rawPassword = PasswordGenerator.generatePassword();
+            u.setPassword(BCrypt.hashpw(rawPassword, BCrypt.gensalt(12)));
+            SendEmail.sendEmail("ttd21072004@gmail.com", u.getEmail(), "FPTU KRS", 
+                    "We have successfully registered you into our system. Your new password is: " + rawPassword);
             uri.save(u);
 
         }
@@ -273,7 +275,7 @@ public class MainServlet extends HttpServlet {
         response.sendRedirect("/" + actualUrl);
     }
 
-    private void register(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    private void register(HttpServletRequest request, HttpServletResponse response) {
         String fullName = request.getParameter("fullName").trim();
         String email = request.getParameter("email").trim();
         String rawPassword = request.getParameter("password").trim();
@@ -313,10 +315,14 @@ public class MainServlet extends HttpServlet {
         } else {
             request.setAttribute("error_password", "");
         }
-        
+
         if (hasError) {
             setRequestAttributes(request, fullName, email, rawPassword, confirmPassword);
-            request.getRequestDispatcher("/main/register.jsp").forward(request, response);
+            try {
+                request.getRequestDispatcher("/main/register.jsp").forward(request, response);
+            } catch (ServletException | IOException ex) {
+                Logger.getLogger(MainServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return;
         }
 
@@ -326,34 +332,40 @@ public class MainServlet extends HttpServlet {
             if (u.getEmail().equals(email)) {
                 request.setAttribute("error_email", "This email is already existed!");
                 setRequestAttributes(request, fullName, email, rawPassword, confirmPassword);
-                request.getRequestDispatcher("/main/register.jsp").forward(request, response);
+                try {
+                    request.getRequestDispatcher("/main/register.jsp").forward(request, response);
+                } catch (ServletException | IOException ex) {
+                    Logger.getLogger(MainServlet.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 return;
             }
         }
 
         User u = new User(fullName, email, hashedPassword);
-        User user = uri.save(u);
-        if (user != null) {
-            String token = UUID.randomUUID().toString();
-            Token verificationToken = new Token();
-            verificationToken.setUser(u);
-            verificationToken.setToken(token);
-            verificationToken.setExpiration(LocalDateTime.now().plusHours(1));
 
-            TokenRepository tokenRepo = TokenRepository.getInstance();
-            tokenRepo.saveToken(verificationToken);
+        String token = UUID.randomUUID().toString();
+        Token verificationToken = new Token();
+        verificationToken.setUser(u);
+        verificationToken.setToken(token);
+        verificationToken.setExpiration(LocalDateTime.now().plusHours(1));
 
-            // Send verification email
-            String verificationLink = "http://localhost:9999/register/verify?token=" + token;
-            SendEmail.sendEmail("ttd21072004@gmail.com", email, "FPTU KRS",
-                    "Here is your link to verify your email: " + verificationLink + "\nPlease keep in mind that this link will expire in one hour.");
+        TokenRepository tokenRepo = TokenRepository.getInstance();
+        tokenRepo.saveToken(verificationToken);
 
+        // Send verification email
+        String verificationLink = "http://localhost:9999/register/verify?token=" + token;
+        SendEmail.sendEmail("ttd21072004@gmail.com", email, "FPTU KRS",
+                "Here is your link to verify your email: " + verificationLink + "\nPlease keep in mind that this link will expire in one hour.");
+
+        try {
             request.getRequestDispatcher("/main/verify-email.jsp").forward(request, response);
-        } else {
-            setRequestAttributes(request, fullName, email, rawPassword, confirmPassword);
-            request.setAttribute("error", "Something went wrong!");
-            request.getRequestDispatcher("/main/register.jsp").forward(request, response);
+        } catch (ServletException | IOException ex) {
+            Logger.getLogger(MainServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
+//
+//        setRequestAttributes(request, fullName, email, rawPassword, confirmPassword);
+//        request.setAttribute("error", "Something went wrong!");
+//        request.getRequestDispatcher("/main/register.jsp").forward(request, response);
     }
 
     private void resetPassword(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {

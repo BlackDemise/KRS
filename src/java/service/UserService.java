@@ -9,7 +9,7 @@ public interface UserService {
 
     List<User> findAll();
 
-    List<User> findAllWithPaging(int itemsPerPage, int page);
+    List<User> findAllWithPaging(int itemsPerPage, int page, String searchQuery);
 
     List<User> findAllTeachers();
     

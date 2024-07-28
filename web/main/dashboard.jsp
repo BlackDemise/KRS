@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,7 +48,6 @@
                             <c:choose>
                                 <c:when test="${sessionScope.user.role.title.userRole == 'Student'}">
                                     <h5 class="mb-0">My Statistics</h5>
-
                                     <div class="row">
                                         <div class="col-xl-4 col-lg-4 col-md-4 mt-4">
                                             <div class="card features feature-primary rounded border-0 shadow p-4">

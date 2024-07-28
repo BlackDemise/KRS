@@ -27,7 +27,7 @@ public class UserValidation {
     }
 
     public static boolean isValidEmail(String email) {
-        String emailRegex = "^[a-zA-Z0-9._%+-]+@(gmail\\.com|fpt\\.edu\\.vn)$";
+        String emailRegex = "^[a-zA-Z0-9._%+-]{1,40}@(gmail\\.com|fpt\\.edu\\.vn)$";
         Pattern pattern = Pattern.compile(emailRegex);
         return pattern.matcher(email).matches();
     }

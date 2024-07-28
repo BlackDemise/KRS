@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAllWithPaging(int itemsPerPage, int page) {
+    public List<User> findAllWithPaging(int itemsPerPage, int page, String searchQuery) {
         List<User> users = userRepository.findAll();
         int numberOfUsers = users.size();
         int maximumPage = numberOfUsers / itemsPerPage + 1;
@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService {
             itemsPerPage = 4;
             page = 1;
         }
-        return userRepository.findAll(itemsPerPage, page);
+        return userRepository.findAll(itemsPerPage, page, searchQuery);
     }
 
     @Override
@@ -161,5 +161,9 @@ public class UserServiceImpl implements UserService {
     
     public List<User> findStudentById(Long studentId) {
         return userRepository.findStudentById(studentId);
+    }
+    
+    public int countUsers(String searchQuery) {
+        return userRepository.countUsers(searchQuery);
     }
 }

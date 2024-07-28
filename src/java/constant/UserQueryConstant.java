@@ -8,6 +8,7 @@ public final class UserQueryConstant {
                       """;
 
     public static final String FIND_ALL_WITH_PAGING = FIND_ALL + """
+                                             where email like ?
                                              limit ?
                                              offset ?
                                              """;
